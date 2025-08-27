@@ -1,32 +1,21 @@
 package com.example.stc_quanliko.service.impl;
 
+
+import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
+import com.example.stc_quanliko.dto.response.ProductCategoryResponse;
+import com.example.stc_quanliko.dto.response.productcategory.ProductCategoryImportDataResponse;
+import com.example.stc_quanliko.dto.response.productcategory.VerifyProductCategoryImportResponse;
+import com.example.stc_quanliko.dto.response.productcategory.VerifyProductDto;
+import com.example.stc_quanliko.entity.CategoryModel;
+import com.example.stc_quanliko.entity.ProductCategoryModel;
+import com.example.stc_quanliko.entity.ProductModel;
+import com.example.stc_quanliko.repository.CategoryRepository;
+import com.example.stc_quanliko.repository.ProductCategoryRepository;
+import com.example.stc_quanliko.repository.ProductRepository;
+import com.example.stc_quanliko.service.ProductCategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-import com.security.duanspringboot.core.response.ErrorData;
-import com.security.duanspringboot.core.response.ResponseBody;
-import com.security.duanspringboot.dto.request.ProductCategoryRequest;
-import com.security.duanspringboot.dto.request.productcategory.ProductCategoryImportRequest;
-import com.security.duanspringboot.dto.response.ProductCategoryResponse;
-import com.security.duanspringboot.dto.response.productcategory.ProductCategoryImportDataResponse;
-import com.security.duanspringboot.dto.response.productcategory.VerifyProductCategoryImportResponse;
-import com.security.duanspringboot.dto.response.productcategory.VerifyProductDto;
-import com.security.duanspringboot.entity.CategoryModel;
-import com.security.duanspringboot.entity.ProductCategoryModel;
-import com.security.duanspringboot.entity.ProductModel;
-import com.security.duanspringboot.exception.ServiceSecurityException;
-import com.security.duanspringboot.repository.CategoryRepository;
-import com.security.duanspringboot.repository.ProductCategoryRepository;
-import com.security.duanspringboot.repository.ProductRepository;
-import com.security.duanspringboot.service.ProductCategoryService;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -36,8 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.security.duanspringboot.core.response.ResponseStatus.*;
-import static com.security.duanspringboot.utils.DateTimeUtils.convertToGMTPlus7;
+import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 public class ProductCategoryServiceImpl implements ProductCategoryService {

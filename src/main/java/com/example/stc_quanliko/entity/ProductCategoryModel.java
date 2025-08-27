@@ -36,4 +36,14 @@ public class ProductCategoryModel {
     private CategoryModel category;
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOrderDetailModel> orderDetails;
+    @jakarta.persistence.Id
+    private Long id;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }
