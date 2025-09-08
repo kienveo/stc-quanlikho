@@ -1,8 +1,8 @@
 package com.example.stc_quanliko.dto.request.order;
 
+import com.example.stc_quanliko.dto.request.orderdetail.ProductOrderDetailRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.security.duanspringboot.dto.request.orderdetail.ProductOrderDetailRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

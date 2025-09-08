@@ -2,8 +2,6 @@ package com.example.stc_quanliko.dto.request.order;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.security.duanspringboot.enumeration.TypePaymentMethod;
-import com.security.duanspringboot.utils.EnumValue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

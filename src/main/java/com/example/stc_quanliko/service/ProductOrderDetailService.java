@@ -1,11 +1,11 @@
 package com.example.stc_quanliko.service;
 
-import com.security.duanspringboot.core.response.ResponseBody;
-import com.security.duanspringboot.dto.request.orderdetail.ProductOrderDetailCreateRequest;
+import com.example.stc_quanliko.dto.request.orderdetail.ProductOrderDetailCreateRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface ProductOrderDetailService {
 
-    ResponseBody<Object> getProductOrderDetail(String productOrderId);
+    ResponseEntity<Object> getProductOrderDetail(String productOrderId);
 
-    ResponseBody<Object> createProductOrderDetail(ProductOrderDetailCreateRequest request);
+    ResponseEntity<Object> createProductOrderDetail(ProductOrderDetailCreateRequest request);
 }

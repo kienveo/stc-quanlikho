@@ -5,14 +5,15 @@ import com.example.stc_quanliko.dto.request.authen.ChangePasswordRequest;
 import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface AuthenticationService {
 
-    ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest);
+    ResponseEntity<Object> registerUser(SignUpUserRequest signUpUserRequest);
 
-    ResponseBody<Object> signIn(SignInRequest signInRequest);
+    ResponseEntity<Object> signIn(SignInRequest signInRequest);
 
-    ResponseBody<Object> changePassword(ChangePasswordRequest changePasswordRequest);
+    ResponseEntity<Object> changePassword(ChangePasswordRequest changePasswordRequest);
 
-    ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest);
+    ResponseEntity<Object> refreshToken(RefreshTokenRequest refreshTokenRequest);
 }

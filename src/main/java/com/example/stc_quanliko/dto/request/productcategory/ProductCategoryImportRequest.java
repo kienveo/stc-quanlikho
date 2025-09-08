@@ -1,8 +1,8 @@
 package com.example.stc_quanliko.dto.request.productcategory;
 
+import com.example.stc_quanliko.dto.response.productcategory.ProductCategoryImportDataResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.security.duanspringboot.dto.response.productcategory.ProductCategoryImportDataResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

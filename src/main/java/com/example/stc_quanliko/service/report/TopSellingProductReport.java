@@ -4,6 +4,7 @@ package com.example.stc_quanliko.service.report;
 import com.example.stc_quanliko.entity.*;
 import com.example.stc_quanliko.repository.*;
 import com.example.stc_quanliko.service.report.data.TopSellingProductReportData;
+import com.example.stc_quanliko.utils.ReportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class TopSellingProductReport {
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductOrderRepository productOrderRepository;
     private final ProductOrderDetailRepository productOrderDetailRepository;
+    private Object TypeStatusOrder;
 
     public TopSellingProductReport(ProductRepository productRepository, CategoryRepository categoryRepository, ProductCategoryRepository productCategoryRepository, ProductOrderRepository productOrderRepository, ProductOrderDetailRepository productOrderDetailRepository) {
         this.productRepository = productRepository;
@@ -37,7 +39,7 @@ public class TopSellingProductReport {
         LocalDateTime startTime = firstDate.atStartOfDay();
         LocalDate secondDate = LocalDate.parse(endDate);
         LocalDateTime endTime = secondDate.atTime(23, 59, 59);
-        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startTime, endTime, TypeStatusOrder.SHIPPING.toString());
+        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startTime, endTime, TypeStatusOrder.toString());
         List<String> productOrderIds = productOrders.stream().map(ProductOrderModel::getProductOrderId).toList();
         List<ProductOrderDetailModel> productOrderDetails = new ArrayList<>();
         if(categoryId.equals("all")) {

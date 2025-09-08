@@ -1,10 +1,8 @@
 package com.example.stc_quanliko.dto.request.order;
 
+import com.example.stc_quanliko.dto.request.orderdetail.ProductOrderDetailRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.security.duanspringboot.dto.request.orderdetail.ProductOrderDetailRequest;
-import com.security.duanspringboot.enumeration.TypeStatusOrder;
-import com.security.duanspringboot.utils.EnumValue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +23,6 @@ public class ProductOrderUpdateRequest {
     private String productOrderId;
 
     @NotBlank(message = "Status is not blank")
-    @EnumValue(name = "status", enumClass = TypeStatusOrder.class)
     @JsonProperty("status")
     private String status;
 

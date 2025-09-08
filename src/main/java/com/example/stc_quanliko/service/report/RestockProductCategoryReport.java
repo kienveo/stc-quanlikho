@@ -7,6 +7,7 @@ import com.example.stc_quanliko.entity.ProductOrderDetailModel;
 import com.example.stc_quanliko.entity.ProductOrderModel;
 import com.example.stc_quanliko.repository.*;
 import com.example.stc_quanliko.service.report.data.RestockProductCategoryReportData;
+import com.example.stc_quanliko.utils.ReportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class RestockProductCategoryReport {
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductOrderRepository productOrderRepository;
     private final ProductOrderDetailRepository productOrderDetailRepository;
+    private Object TypeStatusOrder;
 
     public RestockProductCategoryReport(ProductRepository productRepository, CategoryRepository categoryRepository, ProductCategoryRepository productCategoryRepository, ProductOrderRepository productOrderRepository, ProductOrderDetailRepository productOrderDetailRepository) {
         this.productRepository = productRepository;
@@ -43,7 +45,7 @@ public class RestockProductCategoryReport {
         LocalDateTime startDate = LocalDate.parse(startDateStr, formatter).atStartOfDay();
         LocalDateTime endDate = LocalDateTime.now();
         List<CategoryModel> categories = categoryRepository.findAll();
-        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startDate, endDate, TypeStatusOrder.SHIPPING.toString());
+        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startDate, endDate, TypeStatusOrder.toString());
         List<String> productOrderIds = productOrders.stream().map(ProductOrderModel::getProductOrderId).toList();
         List<ProductOrderDetailModel> productOrderDetails = new ArrayList<>();
         if(categoryId.equals("all")) {
