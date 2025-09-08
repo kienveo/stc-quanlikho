@@ -2,12 +2,17 @@ package com.example.stc_quanliko.service.impl;
 
 
 import com.example.stc_quanliko.dto.request.categories.CategoryCreateRequest;
+import com.example.stc_quanliko.dto.request.categories.CategoryUpdateRequest;
+import com.example.stc_quanliko.dto.response.categories.CategoryListDetailResponse;
 import com.example.stc_quanliko.dto.response.categories.CategoryResponse;
 import com.example.stc_quanliko.entity.CategoryModel;
 import com.example.stc_quanliko.repository.CategoryRepository;
 import com.example.stc_quanliko.repository.ProductCategoryRepository;
 import com.example.stc_quanliko.service.CategoryService;
+import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,10 +20,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
+import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
+
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public abstract class CategoryServiceImpl implements CategoryService {
 
+    private static final ErrorCode CATEGORY_NOT_FOUND = null;
+    private static final ErrorCode CATEGORY_NAME_EXIST = null;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private static final String DEFAULT_SORT_FIELD = "categoryName";

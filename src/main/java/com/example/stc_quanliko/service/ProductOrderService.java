@@ -4,25 +4,26 @@ import com.example.stc_quanliko.dto.request.order.ProductOrderCreateRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderSearchRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderUpdateRequest;
 import com.example.stc_quanliko.dto.request.order.StartShippingRequest;
+import com.example.stc_quanliko.service.impl.ResponseBody;
 import org.springframework.http.ResponseEntity;
 
 public interface ProductOrderService {
 
     ResponseEntity<Object> getAllProductOrder();
 
-    ResponseEntity<Object> createProductOrder(ProductOrderCreateRequest request);
+    ResponseBody<Object> createProductOrder(ProductOrderCreateRequest request);
 
     ResponseEntity<Object> getProductOrderByIdDetail(String productOrderId);
 
-    ResponseEntity<Object> checkTrackingNumber(String trackingNumber);
+    ResponseBody<Object> checkTrackingNumber(String trackingNumber);
 
-    ResponseEntity<Object> updateProductOrderStatus(ProductOrderUpdateRequest request);
+    ResponseBody<Object> updateProductOrderStatus(ProductOrderUpdateRequest request);
 
-    ResponseEntity<Object> deleteProductOrderById(String productOrderId);
+    ResponseBody<Object> deleteProductOrderById(String productOrderId);
 
-    ResponseEntity<Object> getAllProductOrderPage(ProductOrderSearchRequest request);
+    ResponseBody<Object> getAllProductOrderPage(ProductOrderSearchRequest request);
 
-    ResponseEntity<Object> getProductOrderStatusByIdDetail(String productOrderId);
+    ResponseBody<Object> getProductOrderStatusByIdDetail(String productOrderId);
 
-    ResponseEntity<Object> startShipping(StartShippingRequest request);
+    ResponseBody<Object> startShipping(StartShippingRequest request);
 }

@@ -1,12 +1,16 @@
 package com.example.stc_quanliko.service.impl;
 
 
+import com.example.stc_quanliko.dto.request.authen.ChangePasswordRequest;
+import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
+import com.example.stc_quanliko.dto.response.authen.JwtAuthenticationResponse;
 import com.example.stc_quanliko.entity.UsersModel;
 import com.example.stc_quanliko.repository.UsersRepository;
 import com.example.stc_quanliko.service.AuthenticationService;
 import com.example.stc_quanliko.service.JWTService;
+import com.example.stc_quanliko.utils.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,11 +20,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.DoubleStream;
+
+import static com.example.stc_quanliko.utils.ErrorCode.*;
+import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl implements AuthenticationService {
+public abstract class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UsersRepository usersRepository;
 
@@ -29,8 +38,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     private final JWTService jwtService;
+    private DoubleStream ErrorData;
 
-    public ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest) {
+    public ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
         UsersModel usersModel = new UsersModel();
         var existsEmail = usersRepository.existsByEmail(signUpUserRequest.getEmail());
 
@@ -54,7 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return response;
     }
 
-    public ResponseBody<Object> signIn(SignInRequest signInRequest) {
+    public ResponseBody<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
@@ -87,7 +97,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public ResponseBody<Object> changePassword(ChangePasswordRequest request) {
+    public ResponseBody<Object> changePassword(ChangePasswordRequest request) throws ServiceSecurityException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getOldPassword())
@@ -113,7 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return response;
     }
 
-    public ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) {
+    public ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException {
         String userEmail = jwtService.extractUsername(refreshTokenRequest.getToken());
         UsersModel usersModel = usersRepository.findByEmail(userEmail).orElseThrow();
 

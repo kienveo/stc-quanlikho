@@ -8,22 +8,28 @@ import com.example.stc_quanliko.entity.ProductCategoryModel;
 import com.example.stc_quanliko.entity.ProductOrderDetailModel;
 import com.example.stc_quanliko.repository.*;
 import com.example.stc_quanliko.service.ProductOrderDetailService;
+import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
 public class ProductOrderDetailServiceImpl implements ProductOrderDetailService {
 
+    private static final ErrorCode PRODUCT_ORDER_DETAIL_NOT_FOUND = null;
+    private static final ErrorCode PRODUCT_ORDER_NOT_FOUND = null;
+    private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
     final private ProductOrderDetailRepository productOrderDetailRepository;
     final private ProductOrderRepository productOrderRepository;
     final private ProductRepository productRepository;
@@ -31,7 +37,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
     private final CategoryRepository categoryRepository;
 
     @Override
-    public ResponseBody<Object> getProductOrderDetail(String productOrderId) {
+    public ResponseEntity<Object> getProductOrderDetail(String productOrderId) {
         List<ProductOrderDetailModel> orderDetailModels = productOrderDetailRepository.findAllByProductOrderId(productOrderId);
         if (orderDetailModels.isEmpty()) {
             var errorMapping = ErrorData.builder()
@@ -63,11 +69,11 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
         json.putPOJO("productOrderDetailListResponses", productOrderDetailListResponses);
         var response = new ResponseBody<>();
         response.setOperationSuccess(SUCCESS, json);
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseBody<Object> createProductOrderDetail(ProductOrderDetailCreateRequest request) {
+    public ResponseEntity<Object> createProductOrderDetail(ProductOrderDetailCreateRequest request) {
         List<ProductOrderDetailModel> pods = new ArrayList<>();
         for (ProductOrderDetailRequest data : request.getDetailRequests()) {
             var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(data.getProductOrderId(), Boolean.FALSE);
@@ -106,6 +112,6 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
         json.putPOJO("productOrderDetailList", pods);
         var response = new ResponseBody<>();
         response.setOperationSuccess(SUCCESS, json);
-        return response;
+        return ResponseEntity.ok(response);
     }
 }

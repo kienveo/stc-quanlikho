@@ -1,11 +1,7 @@
 package com.example.stc_quanliko.service.impl;
 
-import com.security.duanspringboot.service.JWTService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+
+import com.example.stc_quanliko.service.JWTService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JWTServiceImpl implements JWTService{
+public class JWTServiceImpl implements JWTService {
     private static final String SECRET_KEY = "6A576D5A7134743777217A25432A462D4A614E645267556B5870327235753878";
 //    private static final String SECRET_KEY = "IQcHWqUQdacggCpbFDUMyVqG4R69h2uN4Qt6dqr0GA0=";
 

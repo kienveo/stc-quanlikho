@@ -2,6 +2,7 @@ package com.example.stc_quanliko.service.impl;
 
 
 import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
+import com.example.stc_quanliko.dto.request.productcategory.ProductCategoryImportRequest;
 import com.example.stc_quanliko.dto.response.ProductCategoryResponse;
 import com.example.stc_quanliko.dto.response.productcategory.ProductCategoryImportDataResponse;
 import com.example.stc_quanliko.dto.response.productcategory.VerifyProductCategoryImportResponse;
@@ -13,6 +14,8 @@ import com.example.stc_quanliko.repository.CategoryRepository;
 import com.example.stc_quanliko.repository.ProductCategoryRepository;
 import com.example.stc_quanliko.repository.ProductRepository;
 import com.example.stc_quanliko.service.ProductCategoryService;
+import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,10 +28,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
-public class ProductCategoryServiceImpl implements ProductCategoryService {
+public abstract class ProductCategoryServiceImpl implements ProductCategoryService {
+    private static final ErrorCode CATEGORY_NAME_EXIST = null;
+    private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
+    private static final ErrorCode CATEGORY_NOT_FOUND = null;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;

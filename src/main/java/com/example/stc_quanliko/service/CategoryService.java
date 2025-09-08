@@ -3,17 +3,17 @@ package com.example.stc_quanliko.service;
 
 import com.example.stc_quanliko.dto.request.categories.CategoryCreateRequest;
 import com.example.stc_quanliko.dto.request.categories.CategoryUpdateRequest;
-import org.springframework.http.ResponseEntity;
+import com.example.stc_quanliko.service.impl.ResponseBody;
 
 public interface CategoryService {
 
-    ResponseEntity<Object> getAllCategories();
+    ResponseBody<Object> getAllCategories();
 
-    ResponseEntity<Object> createCategories(CategoryCreateRequest request);
+    ResponseBody<Object> createCategories(CategoryCreateRequest request);
 
-    ResponseEntity<Object> updateCategory(CategoryUpdateRequest request);
+    ResponseBody<Object> updateCategory(CategoryUpdateRequest request);
 
-    ResponseEntity<Object> deleteCategoryById(String categoryId);
+    ResponseBody<Object> deleteCategoryById(String categoryId);
 
-    ResponseEntity<Object> deleteProductCategoryByCategoryId(String categoryId);
+    ResponseBody<Object> deleteProductCategoryByCategoryId(String categoryId);
 }

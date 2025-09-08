@@ -1,24 +1,19 @@
 package com.example.stc_quanliko.service.impl;
 
+import com.example.stc_quanliko.dto.request.products.ProductCreateRequest;
+import com.example.stc_quanliko.dto.request.products.ProductUpdateRequest;
+import com.example.stc_quanliko.dto.response.product.ProductDetailListResponse;
+import com.example.stc_quanliko.entity.ProductModel;
+import com.example.stc_quanliko.repository.CategoryRepository;
+import com.example.stc_quanliko.repository.ProductCategoryRepository;
+import com.example.stc_quanliko.repository.ProductRepository;
+import com.example.stc_quanliko.service.ProductService;
+import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-import com.security.duanspringboot.core.response.ErrorData;
-import com.security.duanspringboot.core.response.ResponseBody;
-import com.security.duanspringboot.dto.request.products.ProductCreateRequest;
-import com.security.duanspringboot.dto.request.products.ProductUpdateRequest;
-import com.security.duanspringboot.dto.response.categories.CategoryListDetailResponse;
-import com.security.duanspringboot.dto.response.product.ProductDetailListResponse;
-import com.security.duanspringboot.entity.CategoryModel;
-import com.security.duanspringboot.entity.ProductCategoryModel;
-import com.security.duanspringboot.entity.ProductModel;
-import com.security.duanspringboot.exception.ServiceSecurityException;
-import com.security.duanspringboot.repository.CategoryRepository;
-import com.security.duanspringboot.repository.ProductCategoryRepository;
-import com.security.duanspringboot.repository.ProductRepository;
-import com.security.duanspringboot.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,16 +22,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.security.duanspringboot.core.response.ResponseStatus.*;
-import static com.security.duanspringboot.utils.DateTimeUtils.convertToGMTPlus7;
+import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
+import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService {
+public abstract class ProductServiceImpl implements ProductService {
 
+    private static final ErrorCode PRODUCT_NAME_EXIST = null;
+    private static final ErrorCode PRODUCT_NOT_FOUND = null;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
@@ -67,8 +62,8 @@ public class ProductServiceImpl implements ProductService {
         return response;
     }
 
-    @Override
     @Transactional
+    @Override
     public ResponseBody<Object> createProduct(ProductCreateRequest request) {
         var existsProductName = productRepository.existsByProductName(request.getProductName());
 
@@ -149,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseBody<Object> importExcel(MultipartFile file) {
+    public ResponseEntity<Object> importExcel(MultipartFile file) {
 
         Map<String, String> resultMap = new HashMap<>();
 

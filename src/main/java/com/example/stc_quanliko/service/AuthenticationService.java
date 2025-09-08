@@ -5,15 +5,17 @@ import com.example.stc_quanliko.dto.request.authen.ChangePasswordRequest;
 import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
-import org.springframework.http.ResponseEntity;
+import com.example.stc_quanliko.service.impl.ResponseBody;
+import com.example.stc_quanliko.service.impl.ServiceSecurityException;
 
 public interface AuthenticationService {
 
-    ResponseEntity<Object> registerUser(SignUpUserRequest signUpUserRequest);
+    ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException;
 
-    ResponseEntity<Object> signIn(SignInRequest signInRequest);
+    ResponseBody<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException;
 
-    ResponseEntity<Object> changePassword(ChangePasswordRequest changePasswordRequest);
+    ResponseBody<Object> changePassword(ChangePasswordRequest changePasswordRequest) throws ServiceSecurityException;
 
-    ResponseEntity<Object> refreshToken(RefreshTokenRequest refreshTokenRequest);
+    ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException;
+
 }

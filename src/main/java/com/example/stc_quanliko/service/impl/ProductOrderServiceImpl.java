@@ -2,6 +2,7 @@ package com.example.stc_quanliko.service.impl;
 
 import com.example.stc_quanliko.dto.request.order.ProductOrderCreateRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderSearchRequest;
+import com.example.stc_quanliko.dto.request.order.ProductOrderUpdateRequest;
 import com.example.stc_quanliko.dto.request.order.StartShippingRequest;
 import com.example.stc_quanliko.dto.request.orderdetail.ProductOrderDetailRequest;
 import com.example.stc_quanliko.dto.response.order.ProductOrderListResponse;
@@ -20,18 +21,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.print.attribute.standard.JobState;
+import javax.tools.Diagnostic;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
+import static com.example.stc_quanliko.utils.DateTimeUtils.addSevenHours;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public class ProductOrderServiceImpl implements ProductOrderService {
+public abstract class ProductOrderServiceImpl implements ProductOrderService {
 
     final private UsersRepository usersRepository;
     final private ProductOrderRepository productOrderRepository;
@@ -45,11 +51,12 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
 
     @Override
-    public ResponseBody<Object> getAllProductOrder() {
+    public ResponseEntity<Object> getAllProductOrder() {
         List<ProductOrderModel> productsOrderModels = productOrderRepository.findAllByIsDelete(Boolean.FALSE);
         LocalDateTime now = LocalDateTime.now();
+        JobState TypeStatusOrder = null;
         productsOrderModels = productsOrderModels.stream()
-                .filter(order -> (order.getStatus().equals(TypeStatusOrder.SHIPPING.toString()) ||
+                .filter(order -> (order.getStatus().equals(TypeStatusOrder.toString()) ||
                         (order.getStatus().equals(TypeStatusOrder.PENDING.toString()) &&
                                 order.getOrderDate().isAfter(now.minusHours(24)))))
                 .collect(Collectors.toList());
@@ -84,7 +91,9 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     public ResponseBody<Object> createProductOrder(ProductOrderCreateRequest request) {
         if (Objects.nonNull(request.getUserId()) && !request.getUserId().isEmpty()) {
             usersRepository.findById(request.getUserId()).orElseThrow(() -> {
-                var errorMapping = ErrorData.builder()
+                DoubleStream ErrorData = DoubleStream.empty();
+                Diagnostic<Object> USER_NOT_FOUND = null;
+                var errorMapping = DoubleStream.builder()
                         .errorKey1(USER_NOT_FOUND.getCode())
                         .build();
                 return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
@@ -93,6 +102,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         var totalAmount = 0.0;
 
         var productOrderId = UUID.randomUUID().toString().replaceAll("-", "");
+        JobState TypeStatusOrder = null;
         var productOrder = ProductOrderModel.builder()
                 .productOrderId(productOrderId)
                 .userId(request.getUserId())
@@ -117,10 +127,11 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     @Override
-    public ResponseBody<Object> getProductOrderByIdDetail(String productOrderId) {
+    public ResponseEntity<Object> getProductOrderByIdDetail(String productOrderId) {
         var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
-            var errorMapping = ErrorData.builder()
+            DoubleStream ErrorData = DoubleStream.empty();
+            var errorMapping = DoubleStream.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
             throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
