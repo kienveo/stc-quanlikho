@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface ProductOrderRepository extends JpaRepository<ProductOrderModel, String> {
+public interface IProductOrderRepository extends JpaRepository<ProductOrderModel, String> {
     String TABLE = "products_order";
 
     @Query("SELECT po FROM products_order po WHERE po.orderDate BETWEEN :startDate AND :endDate")

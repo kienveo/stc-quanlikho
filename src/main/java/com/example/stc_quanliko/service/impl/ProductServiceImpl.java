@@ -4,16 +4,19 @@ import com.example.stc_quanliko.dto.request.products.ProductCreateRequest;
 import com.example.stc_quanliko.dto.request.products.ProductUpdateRequest;
 import com.example.stc_quanliko.dto.response.product.ProductDetailListResponse;
 import com.example.stc_quanliko.entity.ProductModel;
-import com.example.stc_quanliko.repository.CategoryRepository;
-import com.example.stc_quanliko.repository.ProductCategoryRepository;
-import com.example.stc_quanliko.repository.ProductRepository;
+import com.example.stc_quanliko.repository.ICategoryRepository;
+import com.example.stc_quanliko.repository.IProductCategoryRepository;
+import com.example.stc_quanliko.repository.IProductRepository;
 import com.example.stc_quanliko.service.ProductService;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.CSVReader;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,15 +35,15 @@ public abstract class ProductServiceImpl implements ProductService {
 
     private static final ErrorCode PRODUCT_NAME_EXIST = null;
     private static final ErrorCode PRODUCT_NOT_FOUND = null;
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductCategoryRepository productCategoryRepository;
+    private final IProductRepository IProductRepository;
+    private final ICategoryRepository ICategoryRepository;
+    private final IProductCategoryRepository IProductCategoryRepository;
     private static final String DEFAULT_SORT_FIELD = "createDate";
 
 
     @Override
-    public ResponseBody<Object> getAllProductDetail() {
-        var productsModels = productRepository.findAll();
+    public ApiResponse<Object> getAllProductDetail() {
+        var productsModels = IProductRepository.findAll();
         var productDetailListResponse = new ArrayList<ProductDetailListResponse>();
         productsModels.forEach(product -> {
             List<String> keywords = new ArrayList<>();
@@ -57,15 +60,15 @@ public abstract class ProductServiceImpl implements ProductService {
         });
 
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, productDetailListResponse);
         return response;
     }
 
     @Transactional
     @Override
-    public ResponseBody<Object> createProduct(ProductCreateRequest request) {
-        var existsProductName = productRepository.existsByProductName(request.getProductName());
+    public ApiResponse<Object> createProduct(ProductCreateRequest request) {
+        var existsProductName = IProductRepository.existsByProductName(request.getProductName());
 
         if (existsProductName) {
             var errorMapping = ErrorData.builder()
@@ -84,19 +87,19 @@ public abstract class ProductServiceImpl implements ProductService {
                 .createDate(LocalDateTime.now())
                 .build();
 
-        productRepository.save(productsModel);
+        IProductRepository.save(productsModel);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productId", productId);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Transactional
     @Override
-    public ResponseBody<Object> updateProduct(ProductUpdateRequest request) {
-        var productsModel = productRepository.findById(request.getProductId()).orElseThrow(() -> {
+    public ApiResponse<Object> updateProduct(ProductUpdateRequest request) {
+        var productsModel = IProductRepository.findById(request.getProductId()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NOT_FOUND.getCode())
                     .build();
@@ -113,38 +116,38 @@ public abstract class ProductServiceImpl implements ProductService {
         productsModel.setModifyDate(LocalDateTime.now());
         productsModel.setKeyword(keyword);
         productsModel.setGenericName(genericName);
-        productRepository.save(productsModel);
+        IProductRepository.save(productsModel);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productId", productsModel.getProductId());
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Transactional
     @Override
-    public ResponseBody<Object> deleteProductById(String productId) {
-        productRepository.findById(productId).orElseThrow(() -> {
+    public ApiResponse<Object> deleteProductById(String productId) {
+        IProductRepository.findById(productId).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NOT_FOUND.getCode())
                     .build();
             return new ServiceSecurityException(HttpStatus.OK, PRODUCT_NOT_FOUND, errorMapping);
         });
-        productCategoryRepository.deleteAllByProductId(productId);
-        productRepository.deleteById(productId);
+        IProductCategoryRepository.deleteAllByProductId(productId);
+        IProductRepository.deleteById(productId);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productId", productId);
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseEntity<Object> importExcel(MultipartFile file) {
+    public ApiResponse<Object> importExcel(MultipartFile file) throws IOException, CsvValidationException {
 
         Map<String, String> resultMap = new HashMap<>();
 
@@ -158,7 +161,7 @@ public abstract class ProductServiceImpl implements ProductService {
                     resultMap.put(key, value);
                 }
             }
-        } catch (IOException | CsvValidationException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -173,8 +176,8 @@ public abstract class ProductServiceImpl implements ProductService {
             products.add(product);
         }
 
-        productRepository.saveAll(products);
-        var response = new ResponseBody<>();
+        IProductRepository.saveAll(products);
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, "Import thành công!");
         return response;
 
@@ -211,7 +214,7 @@ public abstract class ProductServiceImpl implements ProductService {
 //    }
 
     private void validateProductName(String productName, String productNamePresent) {
-        var existsProductName = productRepository.existsByProductName(productName);
+        var existsProductName = IProductRepository.existsByProductName(productName);
         if (!Objects.equals(productName, productNamePresent) && existsProductName) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NAME_EXIST.getCode())

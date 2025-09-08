@@ -3,17 +3,17 @@ package com.example.stc_quanliko.service;
 
 import com.example.stc_quanliko.dto.request.categories.CategoryCreateRequest;
 import com.example.stc_quanliko.dto.request.categories.CategoryUpdateRequest;
-import com.example.stc_quanliko.service.impl.ResponseBody;
+import com.example.stc_quanliko.service.exception.ApiResponse;
 
 public interface CategoryService {
 
-    ResponseBody<Object> getAllCategories();
+    ApiResponse<Object> getAllCategories();
 
-    ResponseBody<Object> createCategories(CategoryCreateRequest request);
+    ApiResponse<Object> createCategories(CategoryCreateRequest request);
 
-    ResponseBody<Object> updateCategory(CategoryUpdateRequest request);
+    ApiResponse<Object> updateCategory(CategoryUpdateRequest request);
 
-    ResponseBody<Object> deleteCategoryById(String categoryId);
+    ApiResponse<Object> deleteCategoryById(String categoryId);
 
-    ResponseBody<Object> deleteProductCategoryByCategoryId(String categoryId);
+    ApiResponse<Object> deleteProductCategoryByCategoryId(String categoryId);
 }

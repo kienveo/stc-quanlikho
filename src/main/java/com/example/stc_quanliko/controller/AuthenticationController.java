@@ -6,6 +6,7 @@ import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
 import com.example.stc_quanliko.service.AuthenticationService;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.transform.Source;
 import javax.xml.validation.Validator;
 
 @RestController
@@ -48,7 +50,7 @@ public class AuthenticationController {
     }
 
     private <T> void validateRequest(T request) {
-        var violations = validator.validate(request);
+        var violations = validator.validate((Source) request);
         if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
     }
 }

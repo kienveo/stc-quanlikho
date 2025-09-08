@@ -7,10 +7,12 @@ import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
 import com.example.stc_quanliko.dto.response.authen.JwtAuthenticationResponse;
 import com.example.stc_quanliko.entity.UsersModel;
-import com.example.stc_quanliko.repository.UsersRepository;
+import com.example.stc_quanliko.repository.IUsersRepository;
 import com.example.stc_quanliko.service.AuthenticationService;
 import com.example.stc_quanliko.service.JWTService;
-import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import com.example.stc_quanliko.utils.ErrorData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.stream.DoubleStream;
 
 import static com.example.stc_quanliko.utils.ErrorCode.*;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
@@ -31,18 +32,17 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 @RequiredArgsConstructor
 public abstract class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UsersRepository usersRepository;
+    private final IUsersRepository IUsersRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
     private final JWTService jwtService;
-    private DoubleStream ErrorData;
 
-    public ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
+    public ApiResponse<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
         UsersModel usersModel = new UsersModel();
-        var existsEmail = usersRepository.existsByEmail(signUpUserRequest.getEmail());
+        var existsEmail = IUsersRepository.existsByEmail(signUpUserRequest.getEmail());
 
         if (existsEmail) {
             var errorMapping = ErrorData.builder()
@@ -58,13 +58,13 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
         usersModel.setRoleId(signUpUserRequest.getRoleId());
         usersModel.setPassword(passwordEncoder.encode(signUpUserRequest.getPassword()));
         usersModel.setCreateDate(LocalDateTime.now());
-        usersRepository.save(usersModel);
-        var response = new ResponseBody<>();
+        IUsersRepository.save(usersModel);
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, usersModel);
         return response;
     }
 
-    public ResponseBody<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException {
+    public ApiResponse<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
@@ -75,7 +75,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
                     .build();
             throw new ServiceSecurityException(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS, errorMapping);
         }
-        var user = usersRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> {
+        var user = IUsersRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey2(INVALID_REQUEST_PARAMETER.getCode())
                     .build();
@@ -91,13 +91,13 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
         jwtAuthenticationResponse.setRoleId(user.getRoleId());
         jwtAuthenticationResponse.setUsername(user.getUsername());
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, jwtAuthenticationResponse);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> changePassword(ChangePasswordRequest request) throws ServiceSecurityException {
+    public ApiResponse<Object> changePassword(ChangePasswordRequest request) throws ServiceSecurityException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getOldPassword())
@@ -108,7 +108,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
                     .build();
             throw new ServiceSecurityException(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS, errorMapping);
         }
-        var user = usersRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
+        var user = IUsersRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey2(USER_NOT_FOUND.getCode())
                     .build();
@@ -117,15 +117,15 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setCreateDate(LocalDateTime.now());
-        usersRepository.save(user);
-        var response = new ResponseBody<>();
+        IUsersRepository.save(user);
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, user);
         return response;
     }
 
-    public ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException {
+    public ApiResponse<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException {
         String userEmail = jwtService.extractUsername(refreshTokenRequest.getToken());
-        UsersModel usersModel = usersRepository.findByEmail(userEmail).orElseThrow();
+        UsersModel usersModel = IUsersRepository.findByEmail(userEmail).orElseThrow();
 
         if (jwtService.isTokenValid(refreshTokenRequest.getToken(), usersModel)) {
             var errorMapping = ErrorData.builder()
@@ -140,7 +140,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
         jwtAuthenticationResponse.setRefreshToken(refreshTokenRequest.getToken());
         jwtAuthenticationResponse.setUserId(usersModel.getUserId());
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, jwtAuthenticationResponse);
         return response;
     }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductCategoryRepository extends JpaRepository<ProductCategoryModel, String> {
+public interface IProductCategoryRepository extends JpaRepository<ProductCategoryModel, String> {
     String TABLE = "product_category";
 
     @Query("SELECT new com.security.duanspringboot.dto.response.ProductCategoryResponse(pc.productCategoryId, pc.productId, p.productName, c.categoryName, pc.categoryId, pc.quantity, pc.minLimit, pc.maxLimit, pc.price, pc.createDate, pc.modifyDate, c.minQuantity) " +

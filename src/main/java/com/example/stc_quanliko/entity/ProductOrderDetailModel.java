@@ -1,7 +1,7 @@
 package com.example.stc_quanliko.entity;
 
 
-import com.example.stc_quanliko.repository.ProductOrderDetailRepository;
+import com.example.stc_quanliko.repository.IProductOrderDetailRepository;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = ProductOrderDetailRepository.TABLE)
+@Entity(name = IProductOrderDetailRepository.TABLE)
 public class ProductOrderDetailModel {
 
     @Id

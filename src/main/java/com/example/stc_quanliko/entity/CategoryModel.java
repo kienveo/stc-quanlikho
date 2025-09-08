@@ -1,7 +1,7 @@
 package com.example.stc_quanliko.entity;
 
 
-import com.example.stc_quanliko.repository.CategoryRepository;
+import com.example.stc_quanliko.repository.ICategoryRepository;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = CategoryRepository.TABLE)
+@Entity(name = ICategoryRepository.TABLE)
 public class CategoryModel {
 
     @Id

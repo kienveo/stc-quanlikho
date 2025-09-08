@@ -5,17 +5,17 @@ import com.example.stc_quanliko.dto.request.authen.ChangePasswordRequest;
 import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
-import com.example.stc_quanliko.service.impl.ResponseBody;
-import com.example.stc_quanliko.service.impl.ServiceSecurityException;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 
 public interface AuthenticationService {
 
-    ResponseBody<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException;
+    ApiResponse<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException;
 
-    ResponseBody<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException;
+    ApiResponse<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException;
 
-    ResponseBody<Object> changePassword(ChangePasswordRequest changePasswordRequest) throws ServiceSecurityException;
+    ApiResponse<Object> changePassword(ChangePasswordRequest changePasswordRequest) throws ServiceSecurityException;
 
-    ResponseBody<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException;
+    ApiResponse<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException;
 
 }

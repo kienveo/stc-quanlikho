@@ -3,20 +3,20 @@ package com.example.stc_quanliko.service;
 
 import com.example.stc_quanliko.dto.request.users.UpdateUserRequest;
 import com.example.stc_quanliko.dto.request.users.UserSearchRequest;
-import org.springframework.http.ResponseEntity;
+import com.example.stc_quanliko.service.exception.ApiResponse;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
 
     UserDetailsService userDetailsService();
 
-    ResponseEntity<Object> getAllUserDetail();
+    ApiResponse<Object> getAllUserDetail();
 
-    ResponseEntity<Object> getUserIdDetail(String userId);
+    ApiResponse<Object> getUserIdDetail(String userId);
 
-    ResponseEntity<Object> updateUser(UpdateUserRequest request);
+    ApiResponse<Object> updateUser(UpdateUserRequest request);
 
-    ResponseEntity<Object> deleteUserById(String userId);
+    ApiResponse<Object> deleteUserById(String userId);
 
-    ResponseEntity<Object> getAllUserPage(UserSearchRequest request);
+    ApiResponse<Object> getAllUserPage(UserSearchRequest request);
 }

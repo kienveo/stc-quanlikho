@@ -8,6 +8,8 @@ import com.example.stc_quanliko.entity.ProductCategoryModel;
 import com.example.stc_quanliko.entity.ProductOrderDetailModel;
 import com.example.stc_quanliko.repository.*;
 import com.example.stc_quanliko.service.ProductOrderDetailService;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,18 +28,18 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 @RequiredArgsConstructor
 public class ProductOrderDetailServiceImpl implements ProductOrderDetailService {
 
-    private static final ErrorCode PRODUCT_ORDER_DETAIL_NOT_FOUND = null;
+    static final ErrorCode PRODUCT_ORDER_DETAIL_NOT_FOUND = null;
     private static final ErrorCode PRODUCT_ORDER_NOT_FOUND = null;
     private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
-    final private ProductOrderDetailRepository productOrderDetailRepository;
-    final private ProductOrderRepository productOrderRepository;
-    final private ProductRepository productRepository;
-    final private ProductCategoryRepository productCategoryRepository;
-    private final CategoryRepository categoryRepository;
+    final private IProductOrderDetailRepository IProductOrderDetailRepository;
+    final private IProductOrderRepository IProductOrderRepository;
+    final private IProductRepository IProductRepository;
+    final private IProductCategoryRepository IProductCategoryRepository;
+    private final ICategoryRepository ICategoryRepository;
 
     @Override
     public ResponseEntity<Object> getProductOrderDetail(String productOrderId) {
-        List<ProductOrderDetailModel> orderDetailModels = productOrderDetailRepository.findAllByProductOrderId(productOrderId);
+        List<ProductOrderDetailModel> orderDetailModels = IProductOrderDetailRepository.findAllByProductOrderId(productOrderId);
         if (orderDetailModels.isEmpty()) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
@@ -47,10 +48,10 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
         }
 
         List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
-        List<ProductCategoryModel> pods = productCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
+        List<ProductCategoryModel> pods = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
         Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
         List<String> categoryIds = pods.stream().map(ProductCategoryModel::getCategoryId).toList();
-        List<CategoryModel> categories = categoryRepository.findAllByCategoryIdIn(categoryIds);
+        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(categoryIds);
         Map<String, String> categoryNameMap = categories.stream().collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
         List<ProductOrderDetailListResponse> productOrderDetailListResponses = new ArrayList<>();
         orderDetailModels.forEach(productOrderDetail -> productOrderDetailListResponses.add(ProductOrderDetailListResponse.builder()
@@ -67,7 +68,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderDetailListResponses", productOrderDetailListResponses);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return ResponseEntity.ok(response);
     }
@@ -76,7 +77,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
     public ResponseEntity<Object> createProductOrderDetail(ProductOrderDetailCreateRequest request) {
         List<ProductOrderDetailModel> pods = new ArrayList<>();
         for (ProductOrderDetailRequest data : request.getDetailRequests()) {
-            var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(data.getProductOrderId(), Boolean.FALSE);
+            var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(data.getProductOrderId(), Boolean.FALSE);
             if (Objects.isNull(productsOrderModel)) {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -84,7 +85,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
                 throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
             }
 
-            var pc = productCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
+            var pc = IProductCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                         .build();
@@ -106,11 +107,11 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
             pods.add(productOrderDetailModel);
         }
 
-        productOrderDetailRepository.saveAll(pods);
+        IProductOrderDetailRepository.saveAll(pods);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderDetailList", pods);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return ResponseEntity.ok(response);
     }

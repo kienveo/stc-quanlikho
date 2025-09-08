@@ -1,6 +1,6 @@
 package com.example.stc_quanliko.entity;
 
-import com.example.stc_quanliko.repository.UsersRepository;
+import com.example.stc_quanliko.repository.IUsersRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -19,7 +19,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = UsersRepository.TABLE)
+@Entity(name = IUsersRepository.TABLE)
 public class UsersModel implements UserDetails {
 
     @Id

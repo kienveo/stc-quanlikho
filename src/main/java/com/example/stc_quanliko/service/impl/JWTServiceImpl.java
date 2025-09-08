@@ -9,10 +9,15 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 @Service
 public class JWTServiceImpl implements JWTService {
     private static final String SECRET_KEY = "6A576D5A7134743777217A25432A462D4A614E645267556B5870327235753878";
+    private static final Object HS256 = null;
+    private Object SignatureAlgorithm;
+    private DoubleStream Jwts;
+    private Object Claims;
 //    private static final String SECRET_KEY = "IQcHWqUQdacggCpbFDUMyVqG4R69h2uN4Qt6dqr0GA0=";
 
 
@@ -20,7 +25,7 @@ public class JWTServiceImpl implements JWTService {
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
-                .signWith(getSiginKey(), SignatureAlgorithm.HS256)
+                .signWith(getSiginKey(), HS256)
                 .compact();
     }
 
@@ -28,7 +33,7 @@ public class JWTServiceImpl implements JWTService {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 604800000))
-                .signWith(getSiginKey(), SignatureAlgorithm.HS256)
+                .signWith(getSiginKey(), JWTServiceImpl.HS256)
                 .compact();
     }
 
@@ -60,5 +65,11 @@ public class JWTServiceImpl implements JWTService {
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private class HS256 {
+    }
+
+    private class HS256 {
     }
 }

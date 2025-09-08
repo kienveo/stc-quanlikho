@@ -3,26 +3,28 @@ package com.example.stc_quanliko.service;
 
 import com.example.stc_quanliko.dto.request.products.ProductCreateRequest;
 import com.example.stc_quanliko.dto.request.products.ProductUpdateRequest;
-import com.example.stc_quanliko.service.impl.ResponseBody;
-import org.springframework.http.ResponseEntity;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 public interface ProductService {
 
-    ResponseBody<Object> getAllProductDetail();
+    ApiResponse<Object> getAllProductDetail();
 
-    ResponseBody<Object> createProduct(ProductCreateRequest request);
+    ApiResponse<Object> createProduct(ProductCreateRequest request);
 
-    ResponseBody<Object> updateProduct(ProductUpdateRequest request);
-
-    @Transactional
-    ResponseBody<Object> createProduct(ProductCreateRequest request);
+    ApiResponse<Object> updateProduct(ProductUpdateRequest request);
 
     @Transactional
-    ResponseBody<Object> createProduct(ProductCreateRequest request);
+    ApiResponse<Object> createProduct(ProductCreateRequest request);
 
-    ResponseBody<Object> deleteProductById(String productId);
+    @Transactional
+    ApiResponse<Object> createProduct(ProductCreateRequest request);
 
-    ResponseEntity<Object> importExcel(MultipartFile file);
+    ApiResponse<Object> deleteProductById(String productId);
+
+    ApiResponse<Object> importExcel(MultipartFile file) throws IOException, CsvValidationException;
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<CategoryModel, String> {
+public interface ICategoryRepository extends JpaRepository<CategoryModel, String> {
     String TABLE = "category";
 
     boolean existsByCategoryName(String categoryName);

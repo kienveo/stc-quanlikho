@@ -1,6 +1,5 @@
 package com.example.stc_quanliko.service.impl;
 
-
 import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
 import com.example.stc_quanliko.dto.request.productcategory.ProductCategoryImportRequest;
 import com.example.stc_quanliko.dto.response.ProductCategoryResponse;
@@ -10,10 +9,11 @@ import com.example.stc_quanliko.dto.response.productcategory.VerifyProductDto;
 import com.example.stc_quanliko.entity.CategoryModel;
 import com.example.stc_quanliko.entity.ProductCategoryModel;
 import com.example.stc_quanliko.entity.ProductModel;
-import com.example.stc_quanliko.repository.CategoryRepository;
-import com.example.stc_quanliko.repository.ProductCategoryRepository;
-import com.example.stc_quanliko.repository.ProductRepository;
+import com.example.stc_quanliko.repository.ICategoryRepository;
+import com.example.stc_quanliko.repository.IProductCategoryRepository;
+import com.example.stc_quanliko.repository.IProductRepository;
 import com.example.stc_quanliko.service.ProductCategoryService;
+import com.example.stc_quanliko.service.exception.*;
 import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
@@ -36,32 +37,32 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
     private static final ErrorCode CATEGORY_NAME_EXIST = null;
     private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
     private static final ErrorCode CATEGORY_NOT_FOUND = null;
-    private final ProductCategoryRepository productCategoryRepository;
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final IProductCategoryRepository IProductCategoryRepository;
+    private final IProductRepository IProductRepository;
+    private final ICategoryRepository ICategoryRepository;
 
-    public ProductCategoryServiceImpl(ProductCategoryRepository productCategoryRepository, ProductRepository productRepository,
-                                      CategoryRepository categoryRepository) {
-        this.productCategoryRepository = productCategoryRepository;
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
+    public ProductCategoryServiceImpl(IProductCategoryRepository IProductCategoryRepository, IProductRepository IProductRepository,
+                                      ICategoryRepository ICategoryRepository) {
+        this.IProductCategoryRepository = IProductCategoryRepository;
+        this.IProductRepository = IProductRepository;
+        this.ICategoryRepository = ICategoryRepository;
     }
 
     @Override
-    public ResponseBody<Object> getAllProductCategory() {
-        List<ProductCategoryResponse> responses = productCategoryRepository.findAllIncludeProductName();
+    public ApiResponse<Object> getAllProductCategory() {
+        List<ProductCategoryResponse> responses = IProductCategoryRepository.findAllIncludeProductName();
         responses.forEach(response -> {
             response.setCreateDate(convertToGMTPlus7(response.getCreateDate()));
             response.setModifyDate(convertToGMTPlus7(response.getModifyDate()));
         });
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, responses);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> createProductCategory(ProductCategoryRequest request) {
-        var productCategory = productCategoryRepository.existsByProductIdAndCategoryId(request.getProductId(), request.getCategoryId());
+    public ApiResponse<Object> createProductCategory(ProductCategoryRequest request) {
+        var productCategory = IProductCategoryRepository.existsByProductIdAndCategoryId(request.getProductId(), request.getCategoryId());
         if (productCategory) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
@@ -80,18 +81,18 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
                 .price(request.getPrice())
                 .createDate(LocalDateTime.now())
                 .build();
-        productCategoryRepository.save(newProductCategory);
+        IProductCategoryRepository.save(newProductCategory);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productCategoryId", newProductCategory);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> updateProductCategory(ProductCategoryRequest request) {
-        var pcModel = productCategoryRepository.findById(request.getProductCategoryId()).orElseThrow(() -> {
+    public ApiResponse<Object> updateProductCategory(ProductCategoryRequest request) {
+        var pcModel = IProductCategoryRepository.findById(request.getProductCategoryId()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
@@ -102,43 +103,43 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
         pcModel.setMinLimit(request.getMinLimit());
         pcModel.setMaxLimit(request.getMaxLimit());
         pcModel.setModifyDate(LocalDateTime.now());
-        productCategoryRepository.save(pcModel);
+        IProductCategoryRepository.save(pcModel);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productCategoryId", request.getCategoryId());
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> deleteProductCategoryById(String id) {
-        var pcModel = productCategoryRepository.findById(id).orElseThrow(() -> {
+    public ApiResponse<Object> deleteProductCategoryById(String id) {
+        var pcModel = IProductCategoryRepository.findById(id).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
             return new ServiceSecurityException(HttpStatus.OK, PRODUCT_CATEGORY_NOT_FOUND, errorMapping);
         });
-        productCategoryRepository.delete(pcModel);
+        IProductCategoryRepository.delete(pcModel);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productCategoryId", id);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> getAllProductCategoryByCategoryId(String categoryId, String type) {
-        var categoriesModel = categoryRepository.findById(categoryId).orElseThrow(() -> {
+    public ApiResponse<Object> getAllProductCategoryByCategoryId(String categoryId, String type) {
+        var categoriesModel = ICategoryRepository.findById(categoryId).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
             return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
         });
-        List<ProductCategoryResponse> responses = productCategoryRepository.findAllIncludeProductNameByCategoryId(categoryId);
+        List<ProductCategoryResponse> responses = IProductCategoryRepository.findAllIncludeProductNameByCategoryId(categoryId);
         List<String> productIds = responses.stream().map(ProductCategoryResponse::getProductId).toList();
-        List<ProductModel> products = productRepository.findByProductIdIn(productIds);
+        List<ProductModel> products = IProductRepository.findByProductIdIn(productIds);
         Map<String, List<String>> keywordMap = new HashMap<>();
         Map<String, List<String>> genericNameMap = new HashMap<>();
         products.forEach(product -> {
@@ -170,15 +171,15 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             responses = responses.stream().filter(product -> product.getQuantity() > product.getMinLimit())
                     .collect(Collectors.toList());
         }
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, responses);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> importExcel(ProductCategoryImportRequest request) {
+    public ApiResponse<Object> importExcel(ProductCategoryImportRequest request) {
         String categoryId = request.getCategoryId();
-        categoryRepository.findById(categoryId).orElseThrow(() -> {
+        ICategoryRepository.findById(categoryId).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
@@ -189,10 +190,10 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             resultMap.put(data.getSystemName(), String.valueOf(data.getQuantity()));
         }
         List<String> productNames = new ArrayList<>(resultMap.keySet());
-        List<ProductModel> existProducts = productRepository.findByProductNameIn(productNames);
+        List<ProductModel> existProducts = IProductRepository.findByProductNameIn(productNames);
 
         List<String> existProductIds = existProducts.stream().map(ProductModel::getProductId).toList();
-        List<ProductCategoryModel> productCategories = productCategoryRepository.findByProductIdIn(existProductIds, categoryId);
+        List<ProductCategoryModel> productCategories = IProductCategoryRepository.findByProductIdIn(existProductIds, categoryId);
         Map<String, ProductCategoryModel> productCategoryMap = productCategories.stream()
                 .collect(Collectors.toMap(ProductCategoryModel::getProductId, e -> e));
 
@@ -219,16 +220,16 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
                 productCategoryList.add(pc);
             }
         }
-        productCategoryRepository.saveAll(productCategoryList);
+        IProductCategoryRepository.saveAll(productCategoryList);
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, "Import Successfully!");
         return response;
     }
 
     @Override
-    public ResponseBody<Object> verifyImportProducts(String categoryId, MultipartFile file) {
-        CategoryModel category = categoryRepository.findById(categoryId).orElseThrow(() -> {
+    public ApiResponse<Object> verifyImportProducts(String categoryId, MultipartFile file) {
+        CategoryModel category = ICategoryRepository.findById(categoryId).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
@@ -236,7 +237,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
         });
 
         Map<String, String> resultMap = getImportFileData(file);
-        List<ProductModel> products = productRepository.findAll();
+        List<ProductModel> products = IProductRepository.findAll();
         Map<String, VerifyProductDto> productVerifyMap = new HashMap<>();
         for (ProductModel product : products) {
             List<String> keywords = new ArrayList<>();
@@ -284,12 +285,12 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
                 .importData(importDataResponses)
                 .build();
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, verifyProductCategoryImportResponse);
         return response;
     }
 
-    private Map<String, String> getImportFileData(MultipartFile file) {
+    private Map<String, String> getImportFileData(MultipartFile file) throws RuntimeException {
         Map<String, String> resultMap = new HashMap<>();
         String fileExtension = getFileExtension(file.getOriginalFilename());
         try (InputStream inputStream = file.getInputStream()) {
@@ -303,11 +304,13 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
                             resultMap.put(key, value);
                         }
                     }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             } else if (fileExtension.equalsIgnoreCase("xlsx") || fileExtension.equalsIgnoreCase("xls")) {
                 try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-                    Sheet sheet = workbook.getSheetAt(0);
-                    for (Row row : sheet) {
+                    Sheet sheet = workbook.getSheetAt(0);   // đúng import
+                    for (Row row : sheet) {                 // giờ foreach ok
                         Cell keyCell = row.getCell(0);
                         Cell valueCell = row.getCell(1);
                         if (keyCell != null && valueCell != null) {
@@ -322,7 +325,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             } else {
                 throw new IllegalArgumentException("Không hỗ trợ định dạng file này: " + fileExtension);
             }
-        } catch (IOException | CsvValidationException e) {
+        } catch (CsvValidationException | Exception e) {
             throw new RuntimeException(e);
         }
         return resultMap;

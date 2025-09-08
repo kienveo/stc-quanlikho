@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductOrderDetailRepository extends JpaRepository<ProductOrderDetailModel, String> {
+public interface IProductOrderDetailRepository extends JpaRepository<ProductOrderDetailModel, String> {
     String TABLE = "products_order_detail";
 
     List<ProductOrderDetailModel> findAllByProductOrderId(String productOrderId);

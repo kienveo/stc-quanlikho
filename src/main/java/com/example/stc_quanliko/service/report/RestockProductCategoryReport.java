@@ -21,19 +21,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RestockProductCategoryReport {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductCategoryRepository productCategoryRepository;
-    private final ProductOrderRepository productOrderRepository;
-    private final ProductOrderDetailRepository productOrderDetailRepository;
+    private final IProductRepository IProductRepository;
+    private final ICategoryRepository ICategoryRepository;
+    private final IProductCategoryRepository IProductCategoryRepository;
+    private final IProductOrderRepository IProductOrderRepository;
+    private final IProductOrderDetailRepository IProductOrderDetailRepository;
     private Object TypeStatusOrder;
 
-    public RestockProductCategoryReport(ProductRepository productRepository, CategoryRepository categoryRepository, ProductCategoryRepository productCategoryRepository, ProductOrderRepository productOrderRepository, ProductOrderDetailRepository productOrderDetailRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.productCategoryRepository = productCategoryRepository;
-        this.productOrderRepository = productOrderRepository;
-        this.productOrderDetailRepository = productOrderDetailRepository;
+    public RestockProductCategoryReport(IProductRepository IProductRepository, ICategoryRepository ICategoryRepository, IProductCategoryRepository IProductCategoryRepository, IProductOrderRepository IProductOrderRepository, IProductOrderDetailRepository IProductOrderDetailRepository) {
+        this.IProductRepository = IProductRepository;
+        this.ICategoryRepository = ICategoryRepository;
+        this.IProductCategoryRepository = IProductCategoryRepository;
+        this.IProductOrderRepository = IProductOrderRepository;
+        this.IProductOrderDetailRepository = IProductOrderDetailRepository;
     }
 
     private final List<String> RestockProductCategoryReportColumns = Arrays.asList(
@@ -44,16 +44,16 @@ public class RestockProductCategoryReport {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime startDate = LocalDate.parse(startDateStr, formatter).atStartOfDay();
         LocalDateTime endDate = LocalDateTime.now();
-        List<CategoryModel> categories = categoryRepository.findAll();
-        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startDate, endDate, TypeStatusOrder.toString());
+        List<CategoryModel> categories = ICategoryRepository.findAll();
+        List<ProductOrderModel> productOrders = IProductOrderRepository.findByOrderDateBetweenAndStatus(startDate, endDate, TypeStatusOrder.toString());
         List<String> productOrderIds = productOrders.stream().map(ProductOrderModel::getProductOrderId).toList();
         List<ProductOrderDetailModel> productOrderDetails = new ArrayList<>();
         if(categoryId.equals("all")) {
-            productOrderDetails = productOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
         } else {
-            productOrderDetails = productOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
         }
-        List<ProductCategoryModel> poList = productCategoryRepository.findAll();
+        List<ProductCategoryModel> poList = IProductCategoryRepository.findAll();
         return createContent(categories, poList, productOrderDetails);
     }
 

@@ -1,7 +1,7 @@
 package com.example.stc_quanliko.entity;
 
 
-import com.example.stc_quanliko.repository.ProductCategoryRepository;
+import com.example.stc_quanliko.repository.IProductCategoryRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = ProductCategoryRepository.TABLE)
+@Entity(name = IProductCategoryRepository.TABLE)
 public class ProductCategoryModel {
 
     @Id

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UsersRepository extends JpaRepository<UsersModel, String> {
+public interface IUsersRepository extends JpaRepository<UsersModel, String> {
     String TABLE = "users";
 
     Optional<UsersModel> findByEmail(String email);

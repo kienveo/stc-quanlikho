@@ -14,6 +14,10 @@ import com.example.stc_quanliko.entity.ProductOrderDetailModel;
 import com.example.stc_quanliko.entity.ProductOrderModel;
 import com.example.stc_quanliko.repository.*;
 import com.example.stc_quanliko.service.ProductOrderService;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import com.example.stc_quanliko.utils.ErrorCode;
+import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -30,8 +33,8 @@ import javax.tools.Diagnostic;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
+import static com.example.stc_quanliko.service.impl.ProductOrderDetailServiceImpl.*;
 import static com.example.stc_quanliko.utils.DateTimeUtils.addSevenHours;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
@@ -39,20 +42,23 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 @RequiredArgsConstructor
 public abstract class ProductOrderServiceImpl implements ProductOrderService {
 
-    final private UsersRepository usersRepository;
-    final private ProductOrderRepository productOrderRepository;
-    final private ProductOrderDetailRepository productOrderDetailRepository;
-    final private ProductCategoryRepository productCategoryRepository;
-    private final CategoryRepository categoryRepository;
+    private static final ErrorCode PRODUCT_ORDER_NOT_FOUND = null;;
+    private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
+    final private IUsersRepository IUsersRepository;
+    final private IProductOrderRepository IProductOrderRepository;
+    final private IProductOrderDetailRepository IProductOrderDetailRepository;
+    final private IProductCategoryRepository IProductCategoryRepository;
+    private final ICategoryRepository ICategoryRepository;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final String MONEY = "MONEY";
     private static final int TRACKING_NUMBER_LENGTH = 12;
     private static final String DEFAULT_SORT_FIELD = "orderDate";
+    private Object TypeStatusOrder;
 
 
     @Override
-    public ResponseEntity<Object> getAllProductOrder() {
-        List<ProductOrderModel> productsOrderModels = productOrderRepository.findAllByIsDelete(Boolean.FALSE);
+    public ApiResponse<Object> getAllProductOrder() {
+        List<ProductOrderModel> productsOrderModels = IProductOrderRepository.findAllByIsDelete(Boolean.FALSE);
         LocalDateTime now = LocalDateTime.now();
         JobState TypeStatusOrder = null;
         productsOrderModels = productsOrderModels.stream()
@@ -82,18 +88,17 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                 .collect(Collectors.toList());
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderListResponse", productOrderListResponse);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> createProductOrder(ProductOrderCreateRequest request) {
+    public ApiResponse<Object> createProductOrder(ProductOrderCreateRequest request) {
         if (Objects.nonNull(request.getUserId()) && !request.getUserId().isEmpty()) {
-            usersRepository.findById(request.getUserId()).orElseThrow(() -> {
-                DoubleStream ErrorData = DoubleStream.empty();
+            IUsersRepository.findById(request.getUserId()).orElseThrow(() -> {
                 Diagnostic<Object> USER_NOT_FOUND = null;
-                var errorMapping = DoubleStream.builder()
+                var errorMapping = ErrorData.builder()
                         .errorKey1(USER_NOT_FOUND.getCode())
                         .build();
                 return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
@@ -117,36 +122,35 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                 .status(TypeStatusOrder.PENDING.toString())
                 .isDelete(Boolean.FALSE)
                 .build();
-        productOrderRepository.save(productOrder);
+        IProductOrderRepository.save(productOrder);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderId", productOrderId);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseEntity<Object> getProductOrderByIdDetail(String productOrderId) {
-        var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
+    public ApiResponse<Object> getProductOrderByIdDetail(String productOrderId) {
+        var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
-            DoubleStream ErrorData = DoubleStream.empty();
-            var errorMapping = DoubleStream.builder()
-                    .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
+            var errorMapping = ErrorData.builder()
+                    .errorKey2(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
             throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
         }
 
         ProductOrderResponse productOrderListResponse = getProductOrderResponse(productOrderId, productsOrderModel);
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, productOrderListResponse);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> checkTrackingNumber(String trackingNumber) {
-        var productsOrderModel = productOrderRepository.findByTrackingNumberAndIsDelete(trackingNumber, Boolean.FALSE);
+    public ApiResponse<Object> checkTrackingNumber(String trackingNumber) {
+        var productsOrderModel = IProductOrderRepository.findByTrackingNumberAndIsDelete(trackingNumber, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -155,14 +159,14 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
         }
         ProductOrderResponse productOrderListResponse = getProductOrderResponse(productsOrderModel.getProductOrderId(), productsOrderModel);
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, productOrderListResponse);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> updateProductOrderStatus(ProductOrderUpdateRequest request) {
-        var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(request.getProductOrderId(), Boolean.FALSE);
+    public ApiResponse<Object> updateProductOrderStatus(ProductOrderUpdateRequest request) {
+        var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(request.getProductOrderId(), Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -170,12 +174,12 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
         }
 
-        if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getStatus().equalsIgnoreCase(TypeStatusOrder.SHIPPING.toString())) {
+        if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getStatus().equalsIgnoreCase(TypeStatusOrder.toString())) {
             Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
-            List<ProductOrderDetailModel> pods = productOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
+            List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
             Map<String, Integer> savedMap = pods.stream().collect(Collectors.toMap(ProductOrderDetailModel::getProductCategoryId, ProductOrderDetailModel::getQuantity));
             List<String> productCategoryIds = pods.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
-            List<ProductCategoryModel> pcs = productCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
+            List<ProductCategoryModel> pcs = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
             for (ProductCategoryModel pc : pcs) {
                 String productCategoryId = pc.getProductCategoryId();
                 if (requestChangeMap.containsKey(productCategoryId) && savedMap.containsKey(productCategoryId)) {
@@ -183,39 +187,39 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                     pc.setQuantity(newQuantity);
                 }
             }
-            productCategoryRepository.saveAll(pcs);
+            IProductCategoryRepository.saveAll(pcs);
             for (ProductOrderDetailModel pod : pods) {
                 if (requestChangeMap.containsKey(pod.getProductCategoryId())) {
                     pod.setQuantity(requestChangeMap.get(pod.getProductCategoryId()));
                 }
             }
-            productOrderDetailRepository.saveAll(pods);
+            IProductOrderDetailRepository.saveAll(pods);
         } else {
             Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
-            List<ProductOrderDetailModel> pods = productOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
+            List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
 
             for (ProductOrderDetailModel pod : pods) {
                 if (requestChangeMap.containsKey(pod.getProductCategoryId())) {
                     pod.setQuantity(requestChangeMap.get(pod.getProductCategoryId()));
                 }
             }
-            productOrderDetailRepository.saveAll(pods);
+            IProductOrderDetailRepository.saveAll(pods);
         }
 
 
 
         productsOrderModel.setStatus(request.getStatus());
-        productOrderRepository.save(productsOrderModel);
+        IProductOrderRepository.save(productsOrderModel);
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderId", request.getProductOrderId());
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> deleteProductOrderById(String productOrderId) {
-        var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
+    public ApiResponse<Object> deleteProductOrderById(String productOrderId) {
+        var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -223,16 +227,16 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
         }
         productsOrderModel.setIsDelete(Boolean.TRUE);
-        productOrderRepository.save(productsOrderModel);
+        IProductOrderRepository.save(productsOrderModel);
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("productOrderId", productOrderId);
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> getAllProductOrderPage(ProductOrderSearchRequest request) {
+    public ApiResponse<Object> getAllProductOrderPage(ProductOrderSearchRequest request) {
         var mapper = new ObjectMapper();
         var json = mapper.createObjectNode();
 
@@ -252,7 +256,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             pageable = PageRequest.of(Integer.parseInt(request.getPageNumber()) - 1, Integer.parseInt(request.getPageSize()), Sort.by(request.getSortBy()).ascending());
         }
 
-        Page<ProductOrderModel> productsOrderModels = productOrderRepository.findByProductOrderIdAndStatusAndIsDelete(request.getProductOrderId(), request.getStatus(), Boolean.FALSE, pageable);
+        Page<ProductOrderModel> productsOrderModels = IProductOrderRepository.findByProductOrderIdAndStatusAndIsDelete(request.getProductOrderId(), request.getStatus(), Boolean.FALSE, pageable);
         var listProductOrderDetail = productsOrderModels.getContent();
 
         var productOrderDetailListResponse = new ArrayList<ProductOrderResponse>();
@@ -263,15 +267,15 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
         json.putPOJO("page_size", request.getPageSize());
         json.putPOJO("list_product_order", productOrderDetailListResponse);
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, json);
 
         return response;
     }
 
     @Override
-    public ResponseBody<Object> getProductOrderStatusByIdDetail(String productOrderId) {
-        var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
+    public ApiResponse<Object> getProductOrderStatusByIdDetail(String productOrderId) {
+        var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -293,19 +297,19 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                 .isDelete(productsOrderModel.getIsDelete())
                 .build();
 
-        var response = new ResponseBody<>();
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, productOrderListResponse);
         return response;
     }
 
     @Override
-    public ResponseBody<Object> startShipping(StartShippingRequest request) {
+    public ApiResponse<Object> startShipping(StartShippingRequest request) {
         List<ProductCategoryModel> pcList = new ArrayList<>();
         String productOrderId = "";
         if (!CollectionUtils.isEmpty(request.getDetailRequests())) {
             productOrderId = request.getDetailRequests().get(0).getProductOrderId();
         }
-        var productsOrderModel = productOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
+        var productsOrderModel = IProductOrderRepository.findByProductOrderIdAndIsDelete(productOrderId, Boolean.FALSE);
         if (Objects.isNull(productsOrderModel)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
@@ -313,7 +317,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
         }
         for (ProductOrderDetailRequest data : request.getDetailRequests()) {
-            var pc = productCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
+            var pc = IProductCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                         .build();
@@ -323,16 +327,16 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             pcList.add(pc);
         }
 
-        productCategoryRepository.saveAll(pcList);
-        productsOrderModel.setStatus(TypeStatusOrder.SHIPPING.toString());
-        productOrderRepository.save(productsOrderModel);
-        var response = new ResponseBody<>();
+        IProductCategoryRepository.saveAll(pcList);
+        productsOrderModel.setStatus(TypeStatusOrder.toString());
+        IProductOrderRepository.save(productsOrderModel);
+        var response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, "Xuất kho thành công!");
         return response;
     }
 
     private ProductOrderResponse getProductOrderResponse(String productOrderId, ProductOrderModel productOrderModel) {
-        var orderDetailModels = productOrderDetailRepository.findAllByProductOrderId(productOrderId);
+        var orderDetailModels = IProductOrderDetailRepository.findAllByProductOrderId(productOrderId);
         if (orderDetailModels.isEmpty()) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
@@ -341,11 +345,11 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
         }
 
         List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
-        List<ProductCategoryModel> pods = productCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
+        List<ProductCategoryModel> pods = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
         Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
         Map<String, String> categoryMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getCategoryId));
         List<String> categoryIds = pods.stream().map(ProductCategoryModel::getCategoryId).toList();
-        List<CategoryModel> categories = categoryRepository.findAllByCategoryIdIn(categoryIds);
+        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(categoryIds);
         Map<String, String> categoryNameMap = categories.stream().collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
 
         List<ProductOrderDetailListResponse> productOrderDetailListResponses = new ArrayList<>();

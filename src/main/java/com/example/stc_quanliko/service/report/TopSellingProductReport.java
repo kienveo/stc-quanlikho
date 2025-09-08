@@ -17,39 +17,39 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TopSellingProductReport {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductCategoryRepository productCategoryRepository;
-    private final ProductOrderRepository productOrderRepository;
-    private final ProductOrderDetailRepository productOrderDetailRepository;
+    private final IProductRepository IProductRepository;
+    private final ICategoryRepository ICategoryRepository;
+    private final IProductCategoryRepository IProductCategoryRepository;
+    private final IProductOrderRepository IProductOrderRepository;
+    private final IProductOrderDetailRepository IProductOrderDetailRepository;
     private Object TypeStatusOrder;
 
-    public TopSellingProductReport(ProductRepository productRepository, CategoryRepository categoryRepository, ProductCategoryRepository productCategoryRepository, ProductOrderRepository productOrderRepository, ProductOrderDetailRepository productOrderDetailRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.productCategoryRepository = productCategoryRepository;
-        this.productOrderRepository = productOrderRepository;
-        this.productOrderDetailRepository = productOrderDetailRepository;
+    public TopSellingProductReport(IProductRepository IProductRepository, ICategoryRepository ICategoryRepository, IProductCategoryRepository IProductCategoryRepository, IProductOrderRepository IProductOrderRepository, IProductOrderDetailRepository IProductOrderDetailRepository) {
+        this.IProductRepository = IProductRepository;
+        this.ICategoryRepository = ICategoryRepository;
+        this.IProductCategoryRepository = IProductCategoryRepository;
+        this.IProductOrderRepository = IProductOrderRepository;
+        this.IProductOrderDetailRepository = IProductOrderDetailRepository;
     }
 
     public Map<String, String> generateReport(String startDate, String endDate, String categoryId) {
-        List<ProductModel> products = productRepository.findAll();
-        List<CategoryModel> categories = categoryRepository.findAll();
+        List<ProductModel> products = IProductRepository.findAll();
+        List<CategoryModel> categories = ICategoryRepository.findAll();
         LocalDate firstDate = LocalDate.parse(startDate);
         LocalDateTime startTime = firstDate.atStartOfDay();
         LocalDate secondDate = LocalDate.parse(endDate);
         LocalDateTime endTime = secondDate.atTime(23, 59, 59);
-        List<ProductOrderModel> productOrders = productOrderRepository.findByOrderDateBetweenAndStatus(startTime, endTime, TypeStatusOrder.toString());
+        List<ProductOrderModel> productOrders = IProductOrderRepository.findByOrderDateBetweenAndStatus(startTime, endTime, TypeStatusOrder.toString());
         List<String> productOrderIds = productOrders.stream().map(ProductOrderModel::getProductOrderId).toList();
         List<ProductOrderDetailModel> productOrderDetails = new ArrayList<>();
         if(categoryId.equals("all")) {
-            productOrderDetails = productOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
         } else {
-            productOrderDetails = productOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
         }
 
         List<String> sellingProductCategoryIds = productOrderDetails.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
-        List<ProductCategoryModel> poList = productCategoryRepository.findAllByProductCategoryIdIn(sellingProductCategoryIds);
+        List<ProductCategoryModel> poList = IProductCategoryRepository.findAllByProductCategoryIdIn(sellingProductCategoryIds);
         return createContent(categories, poList, productOrderDetails);
     }
 

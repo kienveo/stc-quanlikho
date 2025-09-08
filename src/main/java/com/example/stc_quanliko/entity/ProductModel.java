@@ -1,7 +1,7 @@
 package com.example.stc_quanliko.entity;
 
 
-import com.example.stc_quanliko.repository.ProductRepository;
+import com.example.stc_quanliko.repository.IProductRepository;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = ProductRepository.TABLE)
+@Entity(name = IProductRepository.TABLE)
 public class ProductModel {
 
     @Id

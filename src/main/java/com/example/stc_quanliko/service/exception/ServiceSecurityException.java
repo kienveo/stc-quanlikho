@@ -1,9 +1,7 @@
-package com.example.stc_quanliko.service.impl;
+package com.example.stc_quanliko.service.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-
-import javax.tools.Diagnostic;
 
 @Getter
 public class ServiceSecurityException extends RuntimeException {

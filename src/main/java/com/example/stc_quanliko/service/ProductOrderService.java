@@ -4,26 +4,25 @@ import com.example.stc_quanliko.dto.request.order.ProductOrderCreateRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderSearchRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderUpdateRequest;
 import com.example.stc_quanliko.dto.request.order.StartShippingRequest;
-import com.example.stc_quanliko.service.impl.ResponseBody;
-import org.springframework.http.ResponseEntity;
+import com.example.stc_quanliko.service.exception.ApiResponse;
 
 public interface ProductOrderService {
 
-    ResponseEntity<Object> getAllProductOrder();
+    ApiResponse<Object> getAllProductOrder();
 
-    ResponseBody<Object> createProductOrder(ProductOrderCreateRequest request);
+    ApiResponse<Object> createProductOrder(ProductOrderCreateRequest request);
 
-    ResponseEntity<Object> getProductOrderByIdDetail(String productOrderId);
+    ApiResponse<Object> getProductOrderByIdDetail(String productOrderId);
 
-    ResponseBody<Object> checkTrackingNumber(String trackingNumber);
+    ApiResponse<Object> checkTrackingNumber(String trackingNumber);
 
-    ResponseBody<Object> updateProductOrderStatus(ProductOrderUpdateRequest request);
+    ApiResponse<Object> updateProductOrderStatus(ProductOrderUpdateRequest request);
 
-    ResponseBody<Object> deleteProductOrderById(String productOrderId);
+    ApiResponse<Object> deleteProductOrderById(String productOrderId);
 
-    ResponseBody<Object> getAllProductOrderPage(ProductOrderSearchRequest request);
+    ApiResponse<Object> getAllProductOrderPage(ProductOrderSearchRequest request);
 
-    ResponseBody<Object> getProductOrderStatusByIdDetail(String productOrderId);
+    ApiResponse<Object> getProductOrderStatusByIdDetail(String productOrderId);
 
-    ResponseBody<Object> startShipping(StartShippingRequest request);
+    ApiResponse<Object> startShipping(StartShippingRequest request);
 }
