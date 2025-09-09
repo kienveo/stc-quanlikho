@@ -24,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -101,7 +100,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(USER_NOT_FOUND.getCode())
                         .build();
-                return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
+                return new ServiceSecurityException(USER_NOT_FOUND);
             });
         }
         var totalAmount = 0.0;
@@ -138,7 +137,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey2(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
 
         ProductOrderResponse productOrderListResponse = getProductOrderResponse(productOrderId, productsOrderModel);
@@ -155,7 +154,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
         ProductOrderResponse productOrderListResponse = getProductOrderResponse(productsOrderModel.getProductOrderId(), productsOrderModel);
 
@@ -171,7 +170,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
 
         if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getStatus().equalsIgnoreCase(TypeStatusOrder.toString())) {
@@ -224,7 +223,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
         productsOrderModel.setIsDelete(Boolean.TRUE);
         IProductOrderRepository.save(productsOrderModel);
@@ -280,7 +279,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
 
         ProductOrderListResponse productOrderListResponse = ProductOrderListResponse.builder()
@@ -314,14 +313,14 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
         for (ProductOrderDetailRequest data : request.getDetailRequests()) {
             var pc = IProductCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                         .build();
-                return new ServiceSecurityException(HttpStatus.OK, PRODUCT_CATEGORY_NOT_FOUND, errorMapping);
+                return new ServiceSecurityException(PRODUCT_CATEGORY_NOT_FOUND);
             });
             pc.setQuantity(pc.getQuantity() - data.getQuantity());
             pcList.add(pc);
@@ -341,7 +340,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_DETAIL_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_DETAIL_NOT_FOUND);
         }
 
         List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();

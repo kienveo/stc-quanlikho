@@ -6,11 +6,14 @@ import com.example.stc_quanliko.dto.request.order.ProductOrderSearchRequest;
 import com.example.stc_quanliko.dto.request.order.ProductOrderUpdateRequest;
 import com.example.stc_quanliko.dto.request.order.StartShippingRequest;
 import com.example.stc_quanliko.service.ProductOrderService;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.validation.Validator;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 
 @RestController
@@ -71,7 +74,9 @@ public class ProductOrderController {
     }
 
     private <T> void validateRequest(T request) {
-        var violations = validator.validate(request);
-        if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ServiceSecurityException(violations);
+        }
     }
 }

@@ -14,7 +14,6 @@ import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +43,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_DETAIL_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_ORDER_DETAIL_NOT_FOUND);
         }
 
         List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
@@ -82,14 +81,14 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_ORDER_NOT_FOUND.getCode())
                         .build();
-                throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_ORDER_NOT_FOUND, errorMapping);
+                throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
             }
 
             var pc = IProductCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                         .build();
-                return new ServiceSecurityException(HttpStatus.OK, PRODUCT_CATEGORY_NOT_FOUND, errorMapping);
+                return new ServiceSecurityException(PRODUCT_CATEGORY_NOT_FOUND);
             });
             String productOrderDetailId = UUID.randomUUID().toString().replaceAll("-", "");
             ProductOrderDetailModel productOrderDetailModel = ProductOrderDetailModel.builder()

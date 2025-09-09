@@ -10,7 +10,7 @@ public class ServiceSecurityException extends RuntimeException {
     private final Object errorCode;   // dùng Object để linh hoạt: Enum hoặc String
     private final Object errorData;   // chứa thông tin chi tiết (ErrorData)
 
-    public ServiceSecurityException(HttpStatus httpStatus, Object errorCode, Object errorData) {
+    public ServiceSecurityException(Object errorCode) {
         super(errorCode != null ? errorCode.toString() : "Service security exception");
         this.httpStatus = httpStatus;
         this.errorCode = errorCode;

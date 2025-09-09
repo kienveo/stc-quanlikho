@@ -16,7 +16,6 @@ import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,7 +73,7 @@ public abstract class ProductServiceImpl implements ProductService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NAME_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_NAME_EXIST, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_NAME_EXIST);
         }
 
         String productId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -103,7 +102,7 @@ public abstract class ProductServiceImpl implements ProductService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, PRODUCT_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(PRODUCT_NOT_FOUND);
         });
 
         if (Objects.nonNull(request.getProductName())) {
@@ -133,7 +132,7 @@ public abstract class ProductServiceImpl implements ProductService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, PRODUCT_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(PRODUCT_NOT_FOUND);
         });
         IProductCategoryRepository.deleteAllByProductId(productId);
         IProductRepository.deleteById(productId);
@@ -219,7 +218,7 @@ public abstract class ProductServiceImpl implements ProductService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_NAME_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, PRODUCT_NAME_EXIST, errorMapping);
+            throw new ServiceSecurityException(PRODUCT_NAME_EXIST);
         }
     }
 }

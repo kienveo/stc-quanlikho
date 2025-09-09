@@ -16,7 +16,6 @@ import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,7 +41,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            throw new ServiceSecurityException(CATEGORY_NOT_FOUND);
         }
         List<CategoryResponse> categoryResponses = new ArrayList<>();
         for (CategoryModel category : categories) {
@@ -67,7 +66,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, CATEGORY_NAME_EXIST, errorMapping);
+            throw new ServiceSecurityException(CATEGORY_NAME_EXIST);
         }
 
         String categoryId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -93,7 +92,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
         this.validateCategoryName(request.getCategoryName(), categoriesModel.getCategoryName(), categoriesModel.getCategoryId());
 
@@ -116,7 +115,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
         IProductCategoryRepository.deleteAllByCategoryId(categoryId);
         ICategoryRepository.deleteById(categoriesModel.getCategoryId());
@@ -135,7 +134,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
         IProductCategoryRepository.deleteAllByCategoryId(categoryId);
 
@@ -162,7 +161,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, CATEGORY_NAME_EXIST, errorMapping);
+            throw new ServiceSecurityException(CATEGORY_NAME_EXIST);
         }
     }
 }

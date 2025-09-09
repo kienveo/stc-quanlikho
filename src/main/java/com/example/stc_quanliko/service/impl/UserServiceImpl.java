@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -75,7 +74,7 @@ public abstract class UserServiceImpl implements UserService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(USER_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(USER_NOT_FOUND);
         });
 
         UserDetailResponse userDetailResponse = UserDetailResponse.builder()
@@ -103,7 +102,7 @@ public abstract class UserServiceImpl implements UserService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(USER_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(USER_NOT_FOUND);
         });
         this.validateEmailAndPhoneNumber(request.getEmail(), request.getPhoneNumber(), userModel.getEmail(), userModel.getPhoneNumber());
 
@@ -130,7 +129,7 @@ public abstract class UserServiceImpl implements UserService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(USER_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(USER_NOT_FOUND);
         });
         IUsersRepository.deleteById(userModel.getUserId());
 
@@ -197,7 +196,7 @@ public abstract class UserServiceImpl implements UserService {
             var errorMapping = ErrorData.builder()
                     .errorKey1(EMAIL_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, EMAIL_EXIST, errorMapping);
+            throw new ServiceSecurityException(EMAIL_EXIST);
         }
         if (!StringUtils.isBlank(phoneNumber) && !Objects.equals(phoneNumber, phonePresent)) {
             var existsPhoneNumber = IUsersRepository.existsByPhoneNumber(phoneNumber);
@@ -205,7 +204,7 @@ public abstract class UserServiceImpl implements UserService {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PHONE_NUMBER_EXIST.getCode())
                         .build();
-                throw new ServiceSecurityException(HttpStatus.OK, PHONE_NUMBER_EXIST, errorMapping);
+                throw new ServiceSecurityException(PHONE_NUMBER_EXIST);
             }
         }
     }

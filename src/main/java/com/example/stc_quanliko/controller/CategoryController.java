@@ -5,14 +5,13 @@ import com.example.stc_quanliko.dto.request.categories.CategoryCreateRequest;
 import com.example.stc_quanliko.dto.request.categories.CategoryUpdateRequest;
 import com.example.stc_quanliko.service.CategoryService;
 import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.xml.sax.SAXException;
 
-import javax.xml.transform.Source;
-import javax.xml.validation.Validator;
-import java.io.IOException;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -50,8 +49,10 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.deleteProductCategoryByCategoryId(categoryId));
     }
 
-    private <T extends Source> void validateRequest(T request) throws IOException, SAXException {
-        var violations = validator.validate(request);
-        if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
+    private <T> void validateRequest(T request) {
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ServiceSecurityException(violations);
+        }
     }
 }

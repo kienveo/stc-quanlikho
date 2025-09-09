@@ -14,7 +14,6 @@ import com.example.stc_quanliko.service.exception.ApiResponse;
 import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 import com.example.stc_quanliko.utils.ErrorData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -48,7 +47,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
             var errorMapping = ErrorData.builder()
                     .errorKey1(EMAIL_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, EMAIL_EXIST, errorMapping);
+            throw new ServiceSecurityException(EMAIL_EXIST);
         }
 
         usersModel.setUserId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -73,13 +72,13 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
             var errorMapping = ErrorData.builder()
                     .errorKey2(INVALID_CREDENTIALS.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS, errorMapping);
+            throw new ServiceSecurityException(INVALID_CREDENTIALS);
         }
         var user = IUsersRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey2(INVALID_REQUEST_PARAMETER.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, INVALID_REQUEST_PARAMETER, errorMapping);
+            return new ServiceSecurityException(INVALID_REQUEST_PARAMETER);
         });
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
@@ -106,13 +105,13 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
             var errorMapping = ErrorData.builder()
                     .errorKey2(INVALID_CREDENTIALS.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS, errorMapping);
+            throw new ServiceSecurityException(INVALID_CREDENTIALS);
         }
         var user = IUsersRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey2(USER_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, USER_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(USER_NOT_FOUND);
         });
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -131,7 +130,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
             var errorMapping = ErrorData.builder()
                     .errorKey1(INVALID_REQUEST_PARAMETER.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, INVALID_REQUEST_PARAMETER, errorMapping);
+            throw new ServiceSecurityException(INVALID_REQUEST_PARAMETER);
         }
         var jwt = jwtService.generateToken(usersModel);
 

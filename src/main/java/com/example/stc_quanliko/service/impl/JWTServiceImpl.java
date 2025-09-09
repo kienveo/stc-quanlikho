@@ -69,7 +69,4 @@ public class JWTServiceImpl implements JWTService {
 
     private class HS256 {
     }
-
-    private class HS256 {
-    }
 }

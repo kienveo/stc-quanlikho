@@ -13,11 +13,18 @@ import com.example.stc_quanliko.repository.ICategoryRepository;
 import com.example.stc_quanliko.repository.IProductCategoryRepository;
 import com.example.stc_quanliko.repository.IProductRepository;
 import com.example.stc_quanliko.service.ProductCategoryService;
-import com.example.stc_quanliko.service.exception.*;
+import com.example.stc_quanliko.service.exception.sheet;
+import com.example.stc_quanliko.service.exception.CSVReader;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.Cell;
+import com.example.stc_quanliko.service.exception.Row;
+import com.example.stc_quanliko.service.exception.Workbook;
+import com.example.stc_quanliko.service.exception.XSSFWorkbook;
 import com.example.stc_quanliko.utils.ErrorCode;
 import com.example.stc_quanliko.utils.ErrorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,7 +74,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();
-            throw new ServiceSecurityException(HttpStatus.OK, CATEGORY_NAME_EXIST, errorMapping);
+            throw new ServiceSecurityException(CATEGORY_NAME_EXIST);
         }
 
         String id = UUID.randomUUID().toString().replaceAll("-", "");
@@ -96,7 +103,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, PRODUCT_CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(PRODUCT_CATEGORY_NOT_FOUND);
         });
 
         pcModel.setQuantity(request.getQuantity());
@@ -118,7 +125,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, PRODUCT_CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(PRODUCT_CATEGORY_NOT_FOUND);
         });
         IProductCategoryRepository.delete(pcModel);
 
@@ -135,7 +142,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
         List<ProductCategoryResponse> responses = IProductCategoryRepository.findAllIncludeProductNameByCategoryId(categoryId);
         List<String> productIds = responses.stream().map(ProductCategoryResponse::getProductId).toList();
@@ -183,7 +190,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
         Map<String, String> resultMap = new HashMap<>();
         for (ProductCategoryImportDataResponse data : request.getImportData()) {
@@ -233,7 +240,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
                     .build();
-            return new ServiceSecurityException(HttpStatus.OK, CATEGORY_NOT_FOUND, errorMapping);
+            return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
 
         Map<String, String> resultMap = getImportFileData(file);
@@ -309,8 +316,8 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
                 }
             } else if (fileExtension.equalsIgnoreCase("xlsx") || fileExtension.equalsIgnoreCase("xls")) {
                 try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-                    Sheet sheet = workbook.getSheetAt(0);   // đúng import
-                    for (Row row : sheet) {                 // giờ foreach ok
+                    sheet sheet = workbook.getSheetAt(0);
+                    for (Row row : sheet) {
                         Cell keyCell = row.getCell(0);
                         Cell valueCell = row.getCell(1);
                         if (keyCell != null && valueCell != null) {

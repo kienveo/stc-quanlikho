@@ -3,13 +3,17 @@ package com.example.stc_quanliko.controller;
 import com.example.stc_quanliko.dto.request.products.ProductUpdateRequest;
 import com.example.stc_quanliko.dto.request.products.ProductCreateRequest;
 import com.example.stc_quanliko.service.ProductService;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.validation.Validator;
-
+import jakarta.validation.Validator;
+import java.io.IOException;
+import java.util.Set;
 
 
 @RestController
@@ -43,12 +47,14 @@ public class ProductController {
     }
 
     @PostMapping("/un_auth/product/import")
-    public ResponseEntity<Object> importProducts(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Object> importProducts(@RequestParam("file") MultipartFile file) throws CsvValidationException, IOException {
         return ResponseEntity.ok(productService.importExcel(file));
     }
 
     private <T> void validateRequest(T request) {
-        var violations = validator.validate(request);
-        if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ServiceSecurityException(violations);
+        }
     }
 }

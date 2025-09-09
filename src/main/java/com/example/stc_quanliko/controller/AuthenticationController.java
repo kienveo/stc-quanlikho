@@ -7,6 +7,7 @@ import com.example.stc_quanliko.dto.request.authen.SignInRequest;
 import com.example.stc_quanliko.dto.request.authen.SignUpUserRequest;
 import com.example.stc_quanliko.service.AuthenticationService;
 import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.transform.Source;
-import javax.xml.validation.Validator;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/un_auth")
@@ -48,9 +49,10 @@ public class AuthenticationController {
         this.validateRequest(request);
         return ResponseEntity.ok(authenticationService.changePassword(request));
     }
-
     private <T> void validateRequest(T request) {
-        var violations = validator.validate((Source) request);
-        if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ServiceSecurityException(violations);
+        }
     }
 }

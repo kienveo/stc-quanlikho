@@ -4,12 +4,15 @@ package com.example.stc_quanliko.controller;
 import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
 import com.example.stc_quanliko.dto.request.productcategory.ProductCategoryImportRequest;
 import com.example.stc_quanliko.service.ProductCategoryService;
+import com.example.stc_quanliko.service.exception.ServiceSecurityException;
+import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.validation.Validator;
+import jakarta.validation.Validator;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -55,7 +58,9 @@ public class ProductCategoryController {
     }
 
     private <T> void validateRequest(T request) {
-        var violations = validator.validate(request);
-        if (!violations.isEmpty()) throw new ServiceSecurityException(violations);
+        Set<ConstraintViolation<T>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ServiceSecurityException(violations);
+        }
     }
 }
