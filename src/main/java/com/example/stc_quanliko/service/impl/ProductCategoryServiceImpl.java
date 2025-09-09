@@ -235,7 +235,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
     }
 
     @Override
-    public ApiResponse<Object> verifyImportProducts(String categoryId, MultipartFile file) {
+    public ApiResponse<Object> verifyImportProducts(String categoryId, MultipartFile file) throws CsvValidationException, Exception {
         CategoryModel category = ICategoryRepository.findById(categoryId).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NOT_FOUND.getCode())
@@ -297,7 +297,7 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
         return response;
     }
 
-    private Map<String, String> getImportFileData(MultipartFile file) throws RuntimeException {
+    private Map<String, String> getImportFileData(MultipartFile file) throws RuntimeException, CsvValidationException, Exception {
         Map<String, String> resultMap = new HashMap<>();
         String fileExtension = getFileExtension(file.getOriginalFilename());
         try (InputStream inputStream = file.getInputStream()) {
@@ -332,8 +332,6 @@ public abstract class ProductCategoryServiceImpl implements ProductCategoryServi
             } else {
                 throw new IllegalArgumentException("Không hỗ trợ định dạng file này: " + fileExtension);
             }
-        } catch (CsvValidationException | Exception e) {
-            throw new RuntimeException(e);
         }
         return resultMap;
     }

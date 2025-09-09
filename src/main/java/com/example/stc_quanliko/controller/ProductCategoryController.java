@@ -4,6 +4,7 @@ package com.example.stc_quanliko.controller;
 import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
 import com.example.stc_quanliko.dto.request.productcategory.ProductCategoryImportRequest;
 import com.example.stc_quanliko.service.ProductCategoryService;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
 import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class ProductCategoryController {
     }
 
     @PostMapping("/un_auth/product_category/import/verify/{category_id}")
-    public ResponseEntity<Object> verifyImportProducts(@PathVariable("category_id") String categoryId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Object> verifyImportProducts(@PathVariable("category_id") String categoryId, @RequestParam("file") MultipartFile file) throws CsvValidationException, Exception {
         return ResponseEntity.ok(productCategoryService.verifyImportProducts(categoryId, file));
     }
 

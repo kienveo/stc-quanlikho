@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
@@ -32,7 +33,6 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
     private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
     final private IProductOrderDetailRepository IProductOrderDetailRepository;
     final private IProductOrderRepository IProductOrderRepository;
-    final private IProductRepository IProductRepository;
     final private IProductCategoryRepository IProductCategoryRepository;
     private final ICategoryRepository ICategoryRepository;
 
@@ -46,16 +46,21 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
             throw new ServiceSecurityException(PRODUCT_ORDER_DETAIL_NOT_FOUND);
         }
 
-        List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
+        List<String> productCategoryIds = (List<String>) orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId);
         List<ProductCategoryModel> pods = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
         Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
-        List<String> categoryIds = pods.stream().map(ProductCategoryModel::getCategoryId).toList();
-        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(categoryIds);
+        List<String> categoryIds = new ArrayList<>();
+        Function<? super ProductCategoryModel, ? extends String> mapper = (Function<? super ProductCategoryModel, ? extends String>) productCategoryModel -> productCategoryModel.getCategoryId().toString();
+        for (ProductCategoryModel pod : pods) {
+            String s = mapper.apply(pod);
+            categoryIds.add(s);
+        }
+        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(Collections.singletonList(categoryIds));
         Map<String, String> categoryNameMap = categories.stream().collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
         List<ProductOrderDetailListResponse> productOrderDetailListResponses = new ArrayList<>();
         orderDetailModels.forEach(productOrderDetail -> productOrderDetailListResponses.add(ProductOrderDetailListResponse.builder()
                 .productOrderId(productOrderId)
-                .productCategoryId(productOrderDetail.getProductCategoryId())
+                .productCategoryId((String) productOrderDetail.getProductCategoryId())
                 .productName(productOrderDetail.getProductName())
                 .quantity(productOrderDetail.getQuantity())
                 .price(productOrderDetail.getPrice())
@@ -91,7 +96,8 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
                 return new ServiceSecurityException(PRODUCT_CATEGORY_NOT_FOUND);
             });
             String productOrderDetailId = UUID.randomUUID().toString().replaceAll("-", "");
-            ProductOrderDetailModel productOrderDetailModel = ProductOrderDetailModel.builder()
+            ProductOrderDetailModel productOrderDetailModel;
+            productOrderDetailModel = ProductOrderDetailModel.builder()
                     .productOrderDetailId(productOrderDetailId)
                     .productId(pc.getProductId())
                     .categoryId(pc.getCategoryId())

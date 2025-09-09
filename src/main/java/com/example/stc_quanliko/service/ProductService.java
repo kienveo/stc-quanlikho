@@ -18,12 +18,6 @@ public interface ProductService {
 
     ApiResponse<Object> updateProduct(ProductUpdateRequest request);
 
-    @Transactional
-    ApiResponse<Object> createProduct(ProductCreateRequest request);
-
-    @Transactional
-    ApiResponse<Object> createProduct(ProductCreateRequest request);
-
     ApiResponse<Object> deleteProductById(String productId);
 
     ApiResponse<Object> importExcel(MultipartFile file) throws IOException, CsvValidationException;

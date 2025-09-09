@@ -4,9 +4,12 @@ package com.example.stc_quanliko.service;
 import com.example.stc_quanliko.dto.request.users.UpdateUserRequest;
 import com.example.stc_quanliko.dto.request.users.UserSearchRequest;
 import com.example.stc_quanliko.service.exception.ApiResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
+
+    UserDetails loadUserByUsername(String username);
 
     UserDetailsService userDetailsService();
 

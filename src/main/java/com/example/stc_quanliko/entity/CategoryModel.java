@@ -2,16 +2,12 @@ package com.example.stc_quanliko.entity;
 
 
 import com.example.stc_quanliko.repository.ICategoryRepository;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Getter
 @Setter
 @Builder
@@ -20,18 +16,20 @@ import java.util.List;
 @Entity(name = ICategoryRepository.TABLE)
 public class CategoryModel {
 
+    @jakarta.persistence.Id
     @Id
-    @Column(nullable = false)
-    private String categoryId;
-    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
     private String categoryName;
+
     private String minQuantity;
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductCategoryModel> productCategories;
-    @jakarta.persistence.Id
-    private Long id;
 
     public void setId(Long id) {
         this.id = id;
@@ -40,4 +38,9 @@ public class CategoryModel {
     public Long getId() {
         return id;
     }
+
+    public String getCategoryId() {
+        return categoryName;
+    }
 }
+

@@ -3,6 +3,7 @@ package com.example.stc_quanliko.service;
 import com.example.stc_quanliko.dto.request.ProductCategoryRequest;
 import com.example.stc_quanliko.dto.request.productcategory.ProductCategoryImportRequest;
 import com.example.stc_quanliko.service.exception.ApiResponse;
+import com.example.stc_quanliko.service.exception.CsvValidationException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductCategoryService {
@@ -14,6 +15,6 @@ public interface ProductCategoryService {
 
         ApiResponse<Object> importExcel(ProductCategoryImportRequest request);
 
-        ApiResponse<Object> verifyImportProducts(String categoryId, MultipartFile file);
+        ApiResponse<Object> verifyImportProducts(String categoryId, MultipartFile file) throws CsvValidationException, Exception;
     }
 

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,16 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public abstract class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService {
 
     private static final ErrorCode PHONE_NUMBER_EXIST = null;
     private final IUsersRepository IUsersRepository;
     private static final String DEFAULT_SORT_FIELD = "createDate";
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        return null;
+    }
 
     @Override
     public UserDetailsService userDetailsService() {

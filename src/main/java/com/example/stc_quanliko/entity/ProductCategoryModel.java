@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Getter
 @Setter
 @Builder
@@ -17,9 +16,14 @@ import java.util.List;
 @Entity(name = IProductCategoryRepository.TABLE)
 public class ProductCategoryModel {
 
+    @jakarta.persistence.Id
     @Id
-    @Column(nullable = false)
-    private String productCategoryId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String productCategoryId; // business id (UUID hoặc code)
+
     private String productId;
     private String categoryId;
     private Integer quantity;
@@ -28,16 +32,17 @@ public class ProductCategoryModel {
     private Double price;
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
+
     @ManyToOne
     @JoinColumn(name = "productId", nullable = false, insertable = false, updatable = false)
     private ProductModel product;
+
     @ManyToOne
     @JoinColumn(name = "categoryId", nullable = false, insertable = false, updatable = false)
     private CategoryModel category;
+
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOrderDetailModel> orderDetails;
-    @jakarta.persistence.Id
-    private Long id;
 
     public void setId(Long id) {
         this.id = id;
@@ -47,3 +52,5 @@ public class ProductCategoryModel {
         return id;
     }
 }
+
+

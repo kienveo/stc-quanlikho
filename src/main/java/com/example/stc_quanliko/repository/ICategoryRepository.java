@@ -20,5 +20,5 @@ public interface ICategoryRepository extends JpaRepository<CategoryModel, String
     List<CategoryModel> findAllByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("SELECT c FROM category c WHERE c.categoryId IN :ids")
-    List<CategoryModel> findAllByCategoryIdIn(List<String> ids);
+    List<CategoryModel> findAllByCategoryIdIn(List<Object> ids);
 }

@@ -31,6 +31,7 @@ import javax.print.attribute.standard.JobState;
 import javax.tools.Diagnostic;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.example.stc_quanliko.service.impl.ProductOrderDetailServiceImpl.*;
@@ -173,11 +174,22 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
 
+        Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
+        List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
         if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getStatus().equalsIgnoreCase(TypeStatusOrder.toString())) {
-            Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
-            List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
-            Map<String, Integer> savedMap = pods.stream().collect(Collectors.toMap(ProductOrderDetailModel::getProductCategoryId, ProductOrderDetailModel::getQuantity));
-            List<String> productCategoryIds = pods.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
+            Function<? super ProductOrderDetailModel, ? extends String> keyMapper = (Function<? super ProductOrderDetailModel, ? extends String>) productOrderDetailModel1 -> productOrderDetailModel1.getProductCategoryId().toString();
+            Map<String, Integer> savedMap = new HashMap<>();
+            for (ProductOrderDetailModel productOrderDetailModel : pods) {
+                if (savedMap.put(keyMapper.apply(productOrderDetailModel), productOrderDetailModel.getQuantity()) != null) {
+                    throw new IllegalStateException("Duplicate key");
+                }
+            }
+            List<String> productCategoryIds = new ArrayList<>();
+            Function<? super ProductOrderDetailModel, ? extends String> mapper = (Function<? super ProductOrderDetailModel, ? extends String>) ProductOrderDetailModel::getProductCategoryId;
+            for (ProductOrderDetailModel productOrderDetailModel : pods) {
+                String s = mapper.apply(productOrderDetailModel);
+                productCategoryIds.add(s);
+            }
             List<ProductCategoryModel> pcs = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
             for (ProductCategoryModel pc : pcs) {
                 String productCategoryId = pc.getProductCategoryId();
@@ -192,19 +204,15 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                     pod.setQuantity(requestChangeMap.get(pod.getProductCategoryId()));
                 }
             }
-            IProductOrderDetailRepository.saveAll(pods);
         } else {
-            Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
-            List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
 
             for (ProductOrderDetailModel pod : pods) {
                 if (requestChangeMap.containsKey(pod.getProductCategoryId())) {
                     pod.setQuantity(requestChangeMap.get(pod.getProductCategoryId()));
                 }
             }
-            IProductOrderDetailRepository.saveAll(pods);
         }
-
+        IProductOrderDetailRepository.saveAll(pods);
 
 
         productsOrderModel.setStatus(request.getStatus());
@@ -343,11 +351,17 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(PRODUCT_ORDER_DETAIL_NOT_FOUND);
         }
 
-        List<String> productCategoryIds = orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
+        List<String> productCategoryIds = (List<String>) orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId);
         List<ProductCategoryModel> pods = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
         Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
-        Map<String, String> categoryMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getCategoryId));
-        List<String> categoryIds = pods.stream().map(ProductCategoryModel::getCategoryId).toList();
+        Function<? super ProductCategoryModel, ? extends String> valueMapper = (Function<? super ProductCategoryModel, ? extends String>) productCategoryModel -> productCategoryModel.getCategoryId().toString();
+        Map<String, String> categoryMap = new HashMap<>();
+        for (ProductCategoryModel pod : pods) {
+            if (categoryMap.put(pod.getProductCategoryId(), valueMapper.apply(pod)) != null) {
+                throw new IllegalStateException("Duplicate key");
+            }
+        }
+        List<Object> categoryIds = Collections.singletonList(pods.stream().map(ProductCategoryModel::getCategoryId));
         List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(categoryIds);
         Map<String, String> categoryNameMap = categories.stream().collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
 
@@ -355,7 +369,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
         for(ProductOrderDetailModel productOrderDetail : orderDetailModels) {
             productOrderDetailListResponses.add(ProductOrderDetailListResponse.builder()
                     .productOrderId(productOrderId)
-                    .productCategoryId(productOrderDetail.getProductCategoryId())
+                    .productCategoryId((String) productOrderDetail.getProductCategoryId())
                     .productName(productOrderDetail.getProductName())
                     .quantity(productOrderDetail.getQuantity())
                     .price(productOrderDetail.getPrice())
