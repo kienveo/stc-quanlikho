@@ -1,11 +1,11 @@
 package com.example.stc_quanliko.entity;
 
-
-import com.example.stc_quanliko.repository.IProductOrderDetailRepository;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,8 +22,8 @@ public class ProductOrderDetailModel {
     private String productOrderDetailId; // business id (không phải PK)
 
     private String productId;         // business key
-    private String categoryId;        // business key
-    private String productCategoryId; // business key
+    private Long categoryId;        // business key
+    private Long productCategoryId; // business key
     private String productOrderId;     // business key
     private String productName;
 

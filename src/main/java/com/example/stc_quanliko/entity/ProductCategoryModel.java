@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = IProductCategoryRepository.TABLE)
+@Entity(name = "product_category")
 public class ProductCategoryModel {
 
     @jakarta.persistence.Id
@@ -37,7 +37,7 @@ public class ProductCategoryModel {
     @JoinColumn(name = "productId", nullable = false, insertable = false, updatable = false)
     private ProductModel product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "categoryId", nullable = false, insertable = false, updatable = false)
     private CategoryModel category;
 

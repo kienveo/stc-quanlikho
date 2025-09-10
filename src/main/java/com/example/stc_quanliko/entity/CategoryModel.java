@@ -1,46 +1,42 @@
 package com.example.stc_quanliko.entity;
 
-
 import com.example.stc_quanliko.repository.ICategoryRepository;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-
 import java.time.LocalDateTime;
 import java.util.List;
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity(name = ICategoryRepository.TABLE)
-public class CategoryModel {
 
-    @jakarta.persistence.Id
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Entity(name = ICategoryRepository.TABLE)
+    public class CategoryModel {
 
-    @Column(unique = true, nullable = false)
-    private String categoryName;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    private String minQuantity;
-    private LocalDateTime createDate;
-    private LocalDateTime modifyDate;
+        @Column(unique = true, nullable = false)
+        private String categoryName;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductCategoryModel> productCategories;
+        @Column(name = "category_code") // business id (UUID or code) - avoid name 'category_id'
+        private String categoryCode;
 
-    public void setId(Long id) {
-        this.id = id;
+        private String minQuantity;
+        private LocalDateTime createDate;
+        private LocalDateTime modifyDate;
+
+        @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<ProductCategoryModel> productCategories;
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getCategoryId() {
+            return categoryCode;
+        }
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getCategoryId() {
-        return categoryName;
-    }
-}
 

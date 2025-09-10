@@ -185,7 +185,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
                 }
             }
             List<String> productCategoryIds = new ArrayList<>();
-            Function<? super ProductOrderDetailModel, ? extends String> mapper = (Function<? super ProductOrderDetailModel, ? extends String>) ProductOrderDetailModel::getProductCategoryId;
+            Function<? super ProductOrderDetailModel, ? extends String> mapper = (Function<? super ProductOrderDetailModel, ? extends String>) productOrderDetailModel1 -> String.valueOf(productOrderDetailModel1.getProductCategoryId());
             for (ProductOrderDetailModel productOrderDetailModel : pods) {
                 String s = mapper.apply(productOrderDetailModel);
                 productCategoryIds.add(s);
@@ -369,7 +369,7 @@ public abstract class ProductOrderServiceImpl implements ProductOrderService {
         for(ProductOrderDetailModel productOrderDetail : orderDetailModels) {
             productOrderDetailListResponses.add(ProductOrderDetailListResponse.builder()
                     .productOrderId(productOrderId)
-                    .productCategoryId((String) productOrderDetail.getProductCategoryId())
+                    .productCategoryId(String.valueOf(productOrderDetail.getProductCategoryId()))
                     .productName(productOrderDetail.getProductName())
                     .quantity(productOrderDetail.getQuantity())
                     .price(productOrderDetail.getPrice())

@@ -48,7 +48,7 @@ public class TopSellingProductReport {
             productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
         }
 
-        List<String> sellingProductCategoryIds = productOrderDetails.stream().map(ProductOrderDetailModel::getProductCategoryId).toList();
+        List<String> sellingProductCategoryIds = (List<String>) productOrderDetails.stream().map(ProductOrderDetailModel::getProductCategoryId);
         List<ProductCategoryModel> poList = IProductCategoryRepository.findAllByProductCategoryIdIn(sellingProductCategoryIds);
         return createContent(categories, poList, productOrderDetails);
     }
