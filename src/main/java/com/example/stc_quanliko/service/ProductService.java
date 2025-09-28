@@ -5,7 +5,6 @@ import com.example.stc_quanliko.dto.request.products.ProductCreateRequest;
 import com.example.stc_quanliko.dto.request.products.ProductUpdateRequest;
 import com.example.stc_quanliko.service.exception.ApiResponse;
 import com.example.stc_quanliko.service.exception.CsvValidationException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

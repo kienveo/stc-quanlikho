@@ -1,6 +1,7 @@
 package com.example.stc_quanliko.entity;
 
 
+
 import com.example.stc_quanliko.repository.IProductCategoryRepository;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,10 +37,6 @@ public class ProductCategoryModel {
     @ManyToOne
     @JoinColumn(name = "productId", nullable = false, insertable = false, updatable = false)
     private ProductModel product;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoryId", nullable = false, insertable = false, updatable = false)
-    private CategoryModel category;
 
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOrderDetailModel> orderDetails;

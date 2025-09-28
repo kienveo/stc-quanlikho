@@ -71,7 +71,7 @@ public abstract class CategoryServiceImpl implements CategoryService {
 
         String categoryId = UUID.randomUUID().toString().replaceAll("-", "");
         var category = CategoryModel.builder()
-                .categoryName(categoryId)
+                .categoryCode(categoryId)
                 .categoryName(request.getCategoryName())
                 .minQuantity(request.getMinQuantity())
                 .createDate(LocalDateTime.now())
