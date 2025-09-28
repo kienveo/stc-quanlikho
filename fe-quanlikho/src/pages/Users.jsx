@@ -30,9 +30,12 @@ const Users = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   // Mock data
-  const [users, setUsers] = useState([
+  const [allUsers, setAllUsers] = useState([
     {
       key: '1',
       id: 'U001',
@@ -82,6 +85,20 @@ const Users = () => {
       createdAt: '2024-01-12',
     },
   ]);
+
+  // Filter users based on search criteria
+  const filteredUsers = allUsers.filter(user => {
+    const matchesSearch = !searchText || 
+      user.username.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.phone.includes(searchText);
+    
+    const matchesRole = !selectedRole || user.role === selectedRole;
+    const matchesStatus = !selectedStatus || user.status === selectedStatus;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
   const columns = [
     {
@@ -182,7 +199,7 @@ const Users = () => {
   };
 
   const handleToggleStatus = (key, checked) => {
-    setUsers(users.map(item => 
+    setAllUsers(allUsers.map(item => 
       item.key === key 
         ? { ...item, status: checked ? 'Hoạt động' : 'Khóa' }
         : item
@@ -191,7 +208,7 @@ const Users = () => {
   };
 
   const handleDelete = (key) => {
-    setUsers(users.filter(item => item.key !== key));
+    setAllUsers(allUsers.filter(item => item.key !== key));
     message.success('Xóa người dùng thành công');
   };
 
@@ -199,7 +216,7 @@ const Users = () => {
     form.validateFields().then(values => {
       if (editingUser) {
         // Update existing user
-        setUsers(users.map(item => 
+        setAllUsers(allUsers.map(item => 
           item.key === editingUser.key 
             ? { ...item, ...values }
             : item
@@ -213,7 +230,7 @@ const Users = () => {
           lastLogin: 'Chưa đăng nhập',
           createdAt: new Date().toISOString().split('T')[0],
         };
-        setUsers([...users, newUser]);
+        setAllUsers([...allUsers, newUser]);
         message.success('Thêm người dùng thành công');
       }
       setIsModalVisible(false);
@@ -246,13 +263,28 @@ const Users = () => {
             allowClear
             style={{ width: 300 }}
             prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={setSearchText}
           />
-          <Select placeholder="Vai trò" style={{ width: 150 }} allowClear>
+          <Select 
+            placeholder="Vai trò" 
+            style={{ width: 150 }} 
+            allowClear
+            value={selectedRole}
+            onChange={setSelectedRole}
+          >
             <Option value="Admin">Admin</Option>
             <Option value="Manager">Manager</Option>
             <Option value="Staff">Staff</Option>
           </Select>
-          <Select placeholder="Trạng thái" style={{ width: 150 }} allowClear>
+          <Select 
+            placeholder="Trạng thái" 
+            style={{ width: 150 }} 
+            allowClear
+            value={selectedStatus}
+            onChange={setSelectedStatus}
+          >
             <Option value="Hoạt động">Hoạt động</Option>
             <Option value="Khóa">Khóa</Option>
           </Select>
@@ -261,9 +293,9 @@ const Users = () => {
 
       <Table
         columns={columns}
-        dataSource={users}
+        dataSource={filteredUsers}
         pagination={{
-          total: users.length,
+          total: filteredUsers.length,
           pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true,

@@ -30,9 +30,12 @@ const Orders = () => {
   const [editingOrder, setEditingOrder] = useState(null);
   const [viewingOrder, setViewingOrder] = useState(null);
   const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedPayment, setSelectedPayment] = useState('');
 
   // Mock data
-  const [orders, setOrders] = useState([
+  const [allOrders, setAllOrders] = useState([
     {
       key: '1',
       id: 'ORD-001',
@@ -94,6 +97,20 @@ const Orders = () => {
       ],
     },
   ]);
+
+  // Filter orders based on search criteria
+  const filteredOrders = allOrders.filter(order => {
+    const matchesSearch = !searchText || 
+      order.id.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+      order.customerPhone.includes(searchText) ||
+      order.customerEmail.toLowerCase().includes(searchText.toLowerCase());
+    
+    const matchesStatus = !selectedStatus || order.status === selectedStatus;
+    const matchesPayment = !selectedPayment || order.paymentMethod === selectedPayment;
+    
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
 
   const columns = [
     {
@@ -197,7 +214,7 @@ const Orders = () => {
   };
 
   const handleConfirm = (key) => {
-    setOrders(orders.map(item => 
+    setAllOrders(allOrders.map(item => 
       item.key === key 
         ? { ...item, status: 'Đang xử lý' }
         : item
@@ -206,7 +223,7 @@ const Orders = () => {
   };
 
   const handleCancel = (key) => {
-    setOrders(orders.map(item => 
+    setAllOrders(allOrders.map(item => 
       item.key === key 
         ? { ...item, status: 'Đã hủy' }
         : item
@@ -215,7 +232,7 @@ const Orders = () => {
   };
 
   const handleDelete = (key) => {
-    setOrders(orders.filter(item => item.key !== key));
+    setAllOrders(allOrders.filter(item => item.key !== key));
     message.success('Xóa đơn hàng thành công');
   };
 
@@ -227,7 +244,7 @@ const Orders = () => {
 
     form.validateFields().then(values => {
       if (editingOrder) {
-        setOrders(orders.map(item => 
+        setAllOrders(allOrders.map(item => 
           item.key === editingOrder.key 
             ? { ...item, ...values }
             : item
@@ -259,14 +276,29 @@ const Orders = () => {
             allowClear
             style={{ width: 300 }}
             prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={setSearchText}
           />
-          <Select placeholder="Trạng thái" style={{ width: 150 }} allowClear>
+          <Select 
+            placeholder="Trạng thái" 
+            style={{ width: 150 }} 
+            allowClear
+            value={selectedStatus}
+            onChange={setSelectedStatus}
+          >
             <Option value="Chờ xác nhận">Chờ xác nhận</Option>
             <Option value="Đang xử lý">Đang xử lý</Option>
             <Option value="Đã giao">Đã giao</Option>
             <Option value="Đã hủy">Đã hủy</Option>
           </Select>
-          <Select placeholder="Phương thức thanh toán" style={{ width: 200 }} allowClear>
+          <Select 
+            placeholder="Phương thức thanh toán" 
+            style={{ width: 200 }} 
+            allowClear
+            value={selectedPayment}
+            onChange={setSelectedPayment}
+          >
             <Option value="Tiền mặt">Tiền mặt</Option>
             <Option value="Chuyển khoản">Chuyển khoản</Option>
             <Option value="Thẻ tín dụng">Thẻ tín dụng</Option>
@@ -276,9 +308,9 @@ const Orders = () => {
 
       <Table
         columns={columns}
-        dataSource={orders}
+        dataSource={filteredOrders}
         pagination={{
-          total: orders.length,
+          total: filteredOrders.length,
           pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true,

@@ -59,11 +59,19 @@ const Layout = ({ children }) => {
     navigate(key);
   };
 
-  const handleUserMenuClick = ({ key }) => {
+  const handleUserMenuClick = async ({ key }) => {
     if (key === 'logout') {
-      clearToken();
-      clearUser();
-      navigate('/login');
+      try {
+        // Call logout API if available
+        const { authService } = await import('../services/authService');
+        await authService.logout();
+      } catch (error) {
+        console.log('Logout API không khả dụng, sử dụng local logout');
+      } finally {
+        clearToken();
+        clearUser();
+        navigate('/login');
+      }
     }
   };
 

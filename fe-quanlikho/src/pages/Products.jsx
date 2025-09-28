@@ -9,7 +9,6 @@ import {
   InputNumber,
   Select,
   Tag,
-  Image,
   Popconfirm,
   message,
 } from 'antd';
@@ -28,9 +27,12 @@ const Products = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   // Mock data
-  const [products, setProducts] = useState([
+  const [allProducts, setAllProducts] = useState([
     {
       key: '1',
       id: 'P001',
@@ -39,7 +41,6 @@ const Products = () => {
       price: 29990000,
       stock: 50,
       status: 'Còn hàng',
-      image: 'https://via.placeholder.com/60x60',
       description: 'iPhone 15 Pro 128GB',
     },
     {
@@ -50,7 +51,6 @@ const Products = () => {
       price: 24990000,
       stock: 30,
       status: 'Còn hàng',
-      image: 'https://via.placeholder.com/60x60',
       description: 'Samsung Galaxy S24 256GB',
     },
     {
@@ -61,7 +61,6 @@ const Products = () => {
       price: 29990000,
       stock: 5,
       status: 'Sắp hết',
-      image: 'https://via.placeholder.com/60x60',
       description: 'MacBook Air M2 13 inch',
     },
     {
@@ -72,27 +71,24 @@ const Products = () => {
       price: 24990000,
       stock: 0,
       status: 'Hết hàng',
-      image: 'https://via.placeholder.com/60x60',
       description: 'iPad Pro 12.9 inch M2',
     },
   ]);
 
+  // Filter products based on search criteria
+  const filteredProducts = allProducts.filter(product => {
+    const matchesSearch = !searchText || 
+      product.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      product.id.toLowerCase().includes(searchText.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchText.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+    const matchesStatus = !selectedStatus || product.status === selectedStatus;
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
   const columns = [
-    {
-      title: 'Hình ảnh',
-      dataIndex: 'image',
-      key: 'image',
-      width: 80,
-      render: (image) => (
-        <Image
-          width={60}
-          height={60}
-          src={image}
-          alt="Product"
-          className="rounded"
-        />
-      ),
-    },
     {
       title: 'Mã sản phẩm',
       dataIndex: 'id',
@@ -199,7 +195,7 @@ const Products = () => {
   };
 
   const handleDelete = (key) => {
-    setProducts(products.filter(item => item.key !== key));
+    setAllProducts(allProducts.filter(item => item.key !== key));
     message.success('Xóa sản phẩm thành công');
   };
 
@@ -207,7 +203,7 @@ const Products = () => {
     form.validateFields().then(values => {
       if (editingProduct) {
         // Update existing product
-        setProducts(products.map(item => 
+        setAllProducts(allProducts.map(item => 
           item.key === editingProduct.key 
             ? { ...item, ...values }
             : item
@@ -218,9 +214,8 @@ const Products = () => {
         const newProduct = {
           key: Date.now().toString(),
           ...values,
-          image: 'https://via.placeholder.com/60x60',
         };
-        setProducts([...products, newProduct]);
+        setAllProducts([...allProducts, newProduct]);
         message.success('Thêm sản phẩm thành công');
       }
       setIsModalVisible(false);
@@ -253,13 +248,28 @@ const Products = () => {
             allowClear
             style={{ width: 300 }}
             prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={setSearchText}
           />
-          <Select placeholder="Danh mục" style={{ width: 150 }} allowClear>
+          <Select 
+            placeholder="Danh mục" 
+            style={{ width: 150 }} 
+            allowClear
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+          >
             <Option value="Điện thoại">Điện thoại</Option>
             <Option value="Laptop">Laptop</Option>
             <Option value="Tablet">Tablet</Option>
           </Select>
-          <Select placeholder="Trạng thái" style={{ width: 150 }} allowClear>
+          <Select 
+            placeholder="Trạng thái" 
+            style={{ width: 150 }} 
+            allowClear
+            value={selectedStatus}
+            onChange={setSelectedStatus}
+          >
             <Option value="Còn hàng">Còn hàng</Option>
             <Option value="Sắp hết">Sắp hết</Option>
             <Option value="Hết hàng">Hết hàng</Option>
@@ -269,9 +279,9 @@ const Products = () => {
 
       <Table
         columns={columns}
-        dataSource={products}
+        dataSource={filteredProducts}
         pagination={{
-          total: products.length,
+          total: filteredProducts.length,
           pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true,
