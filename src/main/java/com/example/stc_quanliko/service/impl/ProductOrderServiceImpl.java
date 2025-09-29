@@ -40,7 +40,7 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public abstract class ProductOrderServiceImpl implements ProductOrderService {
+public class ProductOrderServiceImpl implements ProductOrderService {
 
     private static final ErrorCode PRODUCT_ORDER_NOT_FOUND = null;;
     private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;

@@ -26,7 +26,7 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public abstract class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl implements CategoryService {
 
     private static final ErrorCode CATEGORY_NOT_FOUND = null;
     private static final ErrorCode CATEGORY_NAME_EXIST = null;

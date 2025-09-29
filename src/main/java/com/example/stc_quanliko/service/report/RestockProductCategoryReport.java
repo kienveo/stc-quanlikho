@@ -51,7 +51,7 @@ public class RestockProductCategoryReport {
         if(categoryId.equals("all")) {
             productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
         } else {
-            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAAndCategoryId(productOrderIds, categoryId);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAndCategoryId(productOrderIds, categoryId);
         }
         List<ProductCategoryModel> poList = IProductCategoryRepository.findAll();
         return createContent(categories, poList, productOrderDetails);

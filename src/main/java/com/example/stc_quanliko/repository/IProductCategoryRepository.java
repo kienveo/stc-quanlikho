@@ -13,11 +13,11 @@ import java.util.List;
 public interface IProductCategoryRepository extends JpaRepository<ProductCategoryModel, String> {
     String TABLE = "product_category";
 
-    @Query("SELECT new com.security.duanspringboot.dto.response.ProductCategoryResponse(pc.productCategoryId, pc.productId, p.productName, c.categoryName, pc.categoryId, pc.quantity, pc.minLimit, pc.maxLimit, pc.price, pc.createDate, pc.modifyDate, c.minQuantity) " +
+    @Query("SELECT new com.example.stc_quanliko.dto.response.ProductCategoryResponse(pc.productCategoryId, pc.productId, p.productName, c.categoryName, pc.categoryId, pc.quantity, pc.minLimit, pc.maxLimit, pc.price, pc.createDate, pc.modifyDate, c.minQuantity) " +
             "FROM product_category pc JOIN product p ON pc.productId = p.productId JOIN category c ON pc.categoryId = c.categoryId ")
     List<ProductCategoryResponse> findAllIncludeProductName();
 
-    @Query("SELECT new com.security.duanspringboot.dto.response.ProductCategoryResponse(pc.productCategoryId, pc.productId, p.productName, c.categoryName, pc.categoryId, pc.quantity, pc.minLimit, pc.maxLimit, pc.price, pc.createDate, pc.modifyDate, c.minQuantity) " +
+    @Query("SELECT new com.example.stc_quanliko.dto.response.ProductCategoryResponse(pc.productCategoryId, pc.productId, p.productName, c.categoryName, pc.categoryId, pc.quantity, pc.minLimit, pc.maxLimit, pc.price, pc.createDate, pc.modifyDate, c.minQuantity) " +
             "FROM product_category pc JOIN product p ON pc.productId = p.productId JOIN category c ON pc.categoryId = c.categoryId " +
             "WHERE pc.categoryId = :categoryId")
     List<ProductCategoryResponse> findAllIncludeProductNameByCategoryId(String categoryId);

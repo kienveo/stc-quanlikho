@@ -40,7 +40,7 @@ import static com.example.stc_quanliko.utils.DateTimeUtils.convertToGMTPlus7;
 import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
-public abstract class ProductCategoryServiceImpl implements ProductCategoryService {
+public class ProductCategoryServiceImpl implements ProductCategoryService {
     private static final ErrorCode CATEGORY_NAME_EXIST = null;
     private static final ErrorCode PRODUCT_CATEGORY_NOT_FOUND = null;
     private static final ErrorCode CATEGORY_NOT_FOUND = null;

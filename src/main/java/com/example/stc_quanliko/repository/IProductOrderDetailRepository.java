@@ -16,5 +16,5 @@ public interface IProductOrderDetailRepository extends JpaRepository<ProductOrde
     @Query("SELECT pod FROM products_order_detail pod WHERE pod.productOrderId in :productOrderIds")
     List<ProductOrderDetailModel> findAllByProductOrderIdIn(List<String> productOrderIds);
     @Query("SELECT pod FROM products_order_detail pod WHERE pod.productOrderId in :productOrderIds AND pod.categoryId = :categoryId")
-    List<ProductOrderDetailModel> findAllByProductOrderIdInAAndCategoryId(List<String> productOrderIds, String categoryId);
+    List<ProductOrderDetailModel> findAllByProductOrderIdInAndCategoryId(List<String> productOrderIds, String categoryId);
 }

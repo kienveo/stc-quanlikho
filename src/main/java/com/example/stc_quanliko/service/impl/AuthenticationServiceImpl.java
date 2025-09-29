@@ -1,6 +1,5 @@
 package com.example.stc_quanliko.service.impl;
 
-
 import com.example.stc_quanliko.dto.request.authen.ChangePasswordRequest;
 import com.example.stc_quanliko.dto.request.authen.RefreshTokenRequest;
 import com.example.stc_quanliko.dto.request.authen.SignInRequest;
@@ -12,7 +11,6 @@ import com.example.stc_quanliko.service.AuthenticationService;
 import com.example.stc_quanliko.service.JWTService;
 import com.example.stc_quanliko.service.exception.ApiResponse;
 import com.example.stc_quanliko.service.exception.ServiceSecurityException;
-import com.example.stc_quanliko.utils.ErrorData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,27 +27,20 @@ import static jdk.internal.vm.Continuation.PreemptStatus.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
-public abstract class AuthenticationServiceImpl implements AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final IUsersRepository IUsersRepository;
-
+    private final IUsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final JWTService jwtService;
 
-    public ApiResponse<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
-        UsersModel usersModel = new UsersModel();
-        var existsEmail = IUsersRepository.existsByEmail(signUpUserRequest.getEmail());
-
-        if (existsEmail) {
-            var errorMapping = ErrorData.builder()
-                    .errorKey1(EMAIL_EXIST.getCode())
-                    .build();
+    @Override
+    public ApiResponse<Object> signUp(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
+        if (usersRepository.existsByEmail(signUpUserRequest.getEmail())) {
             throw new ServiceSecurityException(EMAIL_EXIST);
         }
 
+        UsersModel usersModel = new UsersModel();
         usersModel.setUserId(UUID.randomUUID().toString().replaceAll("-", ""));
         usersModel.setEmail(signUpUserRequest.getEmail());
         usersModel.setFirstName(signUpUserRequest.getFirstName());
@@ -57,31 +48,33 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
         usersModel.setRoleId(signUpUserRequest.getRoleId());
         usersModel.setPassword(passwordEncoder.encode(signUpUserRequest.getPassword()));
         usersModel.setCreateDate(LocalDateTime.now());
-        IUsersRepository.save(usersModel);
-        var response = new ApiResponse<>();
+        usersRepository.save(usersModel);
+
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, usersModel);
         return response;
     }
 
+    @Override
+    public ApiResponse<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException {
+        return null;
+    }
+
+    @Override
     public ApiResponse<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
             );
         } catch (AuthenticationException e) {
-            var errorMapping = ErrorData.builder()
-                    .errorKey2(INVALID_CREDENTIALS.getCode())
-                    .build();
             throw new ServiceSecurityException(INVALID_CREDENTIALS);
         }
-        var user = IUsersRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> {
-            var errorMapping = ErrorData.builder()
-                    .errorKey2(INVALID_REQUEST_PARAMETER.getCode())
-                    .build();
-            return new ServiceSecurityException(INVALID_REQUEST_PARAMETER);
-        });
-        var jwt = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+
+        UsersModel user = usersRepository.findByEmail(signInRequest.getEmail())
+                .orElseThrow(() -> new ServiceSecurityException(INVALID_REQUEST_PARAMETER));
+
+        String jwt = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
 
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
         jwtAuthenticationResponse.setToken(jwt);
@@ -90,7 +83,7 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
         jwtAuthenticationResponse.setRoleId(user.getRoleId());
         jwtAuthenticationResponse.setUsername(user.getUsername());
 
-        var response = new ApiResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, jwtAuthenticationResponse);
         return response;
     }
@@ -102,44 +95,39 @@ public abstract class AuthenticationServiceImpl implements AuthenticationService
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getOldPassword())
             );
         } catch (AuthenticationException e) {
-            var errorMapping = ErrorData.builder()
-                    .errorKey2(INVALID_CREDENTIALS.getCode())
-                    .build();
             throw new ServiceSecurityException(INVALID_CREDENTIALS);
         }
-        var user = IUsersRepository.findByEmail(request.getEmail()).orElseThrow(() -> {
-            var errorMapping = ErrorData.builder()
-                    .errorKey2(USER_NOT_FOUND.getCode())
-                    .build();
-            return new ServiceSecurityException(USER_NOT_FOUND);
-        });
+
+        UsersModel user = usersRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ServiceSecurityException(USER_NOT_FOUND));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         user.setCreateDate(LocalDateTime.now());
-        IUsersRepository.save(user);
-        var response = new ApiResponse<>();
+        usersRepository.save(user);
+
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, user);
         return response;
     }
 
+    @Override
     public ApiResponse<Object> refreshToken(RefreshTokenRequest refreshTokenRequest) throws ServiceSecurityException {
         String userEmail = jwtService.extractUsername(refreshTokenRequest.getToken());
-        UsersModel usersModel = IUsersRepository.findByEmail(userEmail).orElseThrow();
+        UsersModel usersModel = usersRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ServiceSecurityException(USER_NOT_FOUND));
 
-        if (jwtService.isTokenValid(refreshTokenRequest.getToken(), usersModel)) {
-            var errorMapping = ErrorData.builder()
-                    .errorKey1(INVALID_REQUEST_PARAMETER.getCode())
-                    .build();
+        if (!jwtService.isTokenValid(refreshTokenRequest.getToken(), usersModel)) {
             throw new ServiceSecurityException(INVALID_REQUEST_PARAMETER);
         }
-        var jwt = jwtService.generateToken(usersModel);
+
+        String jwt = jwtService.generateToken(usersModel);
 
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshTokenRequest.getToken());
         jwtAuthenticationResponse.setUserId(usersModel.getUserId());
 
-        var response = new ApiResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setOperationSuccess(SUCCESS, jwtAuthenticationResponse);
         return response;
     }

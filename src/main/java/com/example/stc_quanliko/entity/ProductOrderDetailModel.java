@@ -6,12 +6,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "products_order_detail")
 public class ProductOrderDetailModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

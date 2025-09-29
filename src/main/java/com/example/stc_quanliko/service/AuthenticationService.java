@@ -10,6 +10,8 @@ import com.example.stc_quanliko.service.exception.ServiceSecurityException;
 
 public interface AuthenticationService {
 
+    ApiResponse<Object> signUp(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException;
+
     ApiResponse<Object> registerUser(SignUpUserRequest signUpUserRequest) throws ServiceSecurityException;
 
     ApiResponse<Object> signIn(SignInRequest signInRequest) throws ServiceSecurityException;
