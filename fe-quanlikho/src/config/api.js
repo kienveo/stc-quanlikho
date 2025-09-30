@@ -1,34 +1,46 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
   TIMEOUT: import.meta.env.VITE_API_TIMEOUT || 10000,
   ENDPOINTS: {
     // Auth endpoints
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH_TOKEN: '/auth/refresh',
-    PROFILE: '/auth/profile',
+    LOGIN: '/api/v1/un_auth/signin',
+    REGISTER: '/api/v1/un_auth/signup/user',
+    LOGOUT: '/api/v1/un_auth/logout',
+    REFRESH_TOKEN: '/api/v1/un_auth/refresh',
+    PROFILE: '/api/v1/un_auth/profile',
     
     // User management
-    USERS: '/users',
-    USER_BY_ID: (id) => `/users/${id}`,
+    USERS: '/api/v1/un_auth/user/user_list',
+    USER_BY_ID: (id) => `/api/v1/un_auth/user/${id}`,
+    USER_SEARCH: '/api/v1/admin/category/get_all_user',
+    USER_UPDATE: '/api/v1/un_auth/user/user_update',
+    USER_DELETE: (id) => `/api/v1/admin/user/delete/${id}`,
     
     // Product management
-    PRODUCTS: '/products',
-    PRODUCT_BY_ID: (id) => `/products/${id}`,
+    PRODUCTS: '/api/v1/un_auth/product/product_list',
+    PRODUCT_BY_ID: (id) => `/api/v1/un_auth/product/${id}`,
+    PRODUCT_CREATE: '/api/v1/un_auth/product/create',
+    PRODUCT_UPDATE: '/api/v1/un_auth/product/product_update',
+    PRODUCT_DELETE: (id) => `/api/v1/un_auth/product/delete/${id}`,
     
     // Category management
-    CATEGORIES: '/categories',
-    CATEGORY_BY_ID: (id) => `/categories/${id}`,
+    CATEGORIES: '/api/v1/un_auth/category/all',
+    CATEGORY_BY_ID: (id) => `/api/v1/un_auth/category/${id}`,
+    CATEGORY_CREATE: '/api/v1/un_auth/category/category_create',
+    CATEGORY_UPDATE: '/api/v1/un_auth/category/category_update',
+    CATEGORY_DELETE: (id) => `/api/v1/un_auth/category/delete/${id}`,
     
     // Order management
-    ORDERS: '/orders',
-    ORDER_BY_ID: (id) => `/orders/${id}`,
+    ORDERS: '/api/v1/un_auth/product_order/product_order_list',
+    ORDER_BY_ID: (id) => `/api/v1/un_auth/product_order/${id}`,
+    ORDER_CREATE: '/api/v1/un_auth/product_order/create',
+    ORDER_UPDATE: '/api/v1/un_auth/product_order/product_order_update',
+    ORDER_DELETE: (id) => `/api/v1/un_auth/product_order/delete/${id}`,
     
     // Reports
-    REPORTS: '/reports',
-    DASHBOARD_STATS: '/reports/dashboard',
+    REPORTS: '/api/v1/un_auth/report',
+    DASHBOARD_STATS: '/api/v1/un_auth/report/dashboard',
   }
 };
 
