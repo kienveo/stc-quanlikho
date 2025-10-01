@@ -23,7 +23,9 @@ public interface IProductOrderRepository extends JpaRepository<ProductOrderModel
     List<ProductOrderModel> findByOrderDateBetweenAndStatus(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("status") String status);
 
 
+
     ProductOrderModel findByProductOrderIdAndIsDelete(String productOrderId, Boolean isDelete);
+
     ProductOrderModel findByTrackingNumberAndIsDelete(String trackingNumber, Boolean isDelete);
     List<ProductOrderModel> findAllByIsDelete(Boolean isDelete);
     @Query(value = "SELECT * FROM " + TABLE +

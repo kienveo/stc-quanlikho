@@ -128,7 +128,7 @@ public class RestockProductCategoryReport {
             ProductOrderDetailModel pod = entry.getValue();
             RestockProductCategoryReportData protoRow = new RestockProductCategoryReportData();
             protoRow.setProductName(pod.getProductName());
-            protoRow.setProductCategory(categoryMap.containsKey(poMap.get(productCategoryId).getCategoryId()) ? categoryMap.get(poMap.get(productCategoryId).getCategoryId()).getCategoryName() : "");
+            protoRow.setProductCategory(categoryMap.containsKey(poMap.get(productCategoryId).getCategory()) ? categoryMap.get(poMap.get(productCategoryId).getCategory()).getCategoryName() : "");
             protoRow.setInStock(poMap.containsKey(productCategoryId) ? String.valueOf(poMap.get(productCategoryId).getQuantity()) : "");
             protoRow.setQuantityToOrder(String.valueOf(poMap.get(productCategoryId).getMaxLimit() - poMap.get(productCategoryId).getQuantity()));
             dataRows.add(protoRow);

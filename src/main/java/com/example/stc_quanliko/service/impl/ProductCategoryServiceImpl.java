@@ -80,8 +80,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         String id = UUID.randomUUID().toString().replaceAll("-", "");
         var newProductCategory = ProductCategoryModel.builder()
                 .productCategoryId(id)
-                .categoryId(request.getCategoryId())
-                .productId(request.getProductId())
+                .category(request.getCategory())
+                .product(request.getProduct())
                 .maxLimit(request.getMaxLimit())
                 .minLimit(request.getMinLimit())
                 .quantity(request.getQuantity())
@@ -202,7 +202,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         List<String> existProductIds = existProducts.stream().map(ProductModel::getProductId).toList();
         List<ProductCategoryModel> productCategories = IProductCategoryRepository.findByProductIdIn(existProductIds, categoryId);
         Map<String, ProductCategoryModel> productCategoryMap = productCategories.stream()
-                .collect(Collectors.toMap(ProductCategoryModel::getProductId, e -> e));
+                .collect(Collectors.toMap(ProductCategoryModel::getProduct, e -> e));
 
         List<ProductCategoryModel> productCategoryList = new ArrayList<>();
         for (ProductModel product : existProducts) {

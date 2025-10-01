@@ -122,7 +122,7 @@ public class TopSellingProductReport {
             TopSellingProductReportData protoRow = new TopSellingProductReportData();
             protoRow.setProductName(pod.getProductName());
             if(poMap.containsKey(productCategoryId)) {
-                protoRow.setProductCategory(categoryMap.containsKey(poMap.get(productCategoryId).getCategoryId()) ? categoryMap.get(poMap.get(productCategoryId).getCategoryId()).getCategoryName() : "");
+                protoRow.setProductCategory(categoryMap.containsKey(poMap.get(productCategoryId).getCategory()) ? categoryMap.get(poMap.get(productCategoryId).getCategory()).getCategoryName() : "");
                 protoRow.setInStock(poMap.get(productCategoryId).getQuantity().toString());
             }
             protoRow.setSellingQuantity(pod.getQuantity().toString());

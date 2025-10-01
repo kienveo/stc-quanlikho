@@ -1,5 +1,7 @@
 package com.example.stc_quanliko.dto.request;
 
+import com.example.stc_quanliko.entity.CategoryModel;
+import com.example.stc_quanliko.entity.ProductModel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -32,4 +34,12 @@ public class ProductCategoryRequest {
     private LocalDateTime createDate;
     @JsonProperty("modify_date")
     private LocalDateTime modifyDate;
+
+    public CategoryModel getCategory() {
+        return null;
+    }
+
+    public ProductModel getProduct() {
+        return null;
+    }
 }

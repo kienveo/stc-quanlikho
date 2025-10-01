@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = ICategoryRepository.TABLE)
-@Table(name = "categories") // đặt tên bảng rõ ràng
+@Table(name = "category") // đặt tên bảng rõ ràng
 public class CategoryModel {
 
     @Id
@@ -31,10 +31,6 @@ public class CategoryModel {
     private LocalDateTime createDate;
 
     private LocalDateTime modifyDate;
-
-    public String getCategoryId() {
-        return categoryCode;
-    }
 }
 
 

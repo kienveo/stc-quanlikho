@@ -3,6 +3,7 @@ package com.example.stc_quanliko.repository;
 
 import com.example.stc_quanliko.dto.response.ProductCategoryResponse;
 import com.example.stc_quanliko.entity.ProductCategoryModel;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -39,4 +40,5 @@ public interface IProductCategoryRepository extends JpaRepository<ProductCategor
     @Query("SELECT pc FROM product_category pc WHERE pc.categoryId = :categoryId")
     List<ProductCategoryModel> findByCategoryId(String categoryId);
 
+    <T> ScopedValue<T> findByProductCategoryId(@NotBlank(message = "Product Category Id is not blank") String productCategoryId);
 }

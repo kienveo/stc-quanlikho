@@ -1,9 +1,8 @@
 package com.example.stc_quanliko.entity;
 
 import com.example.stc_quanliko.repository.IUsersRepository;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,14 +33,24 @@ public class UsersModel implements UserDetails {
     private String city;
     private String state;
     private String zipCode;
-    private String roleId;
+
+    // THAY THẾ: private String roleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id") // Tên cột Khóa ngoại trong DB
+    private RoleModel role; // Mối quan hệ tới RoleModel
+
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(roleId));
+        if (role != null && role.getRoles() != null) {
+            return List.of(new SimpleGrantedAuthority(role.getRoles()));
+        }
+        return List.of();
     }
+    // ... các phương thức UserDetails khác
+
 
     @Override
     public String getUsername() {
@@ -66,5 +75,12 @@ public class UsersModel implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void setRoleId(@NotBlank(message = "Role is not blank") String roleId) {
+    }
+
+    public String getRoleId() {
+        return null;
     }
 }

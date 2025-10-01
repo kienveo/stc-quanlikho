@@ -4,48 +4,75 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
-
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "products_order_detail")
+@Entity
+@Table(name = "products_order_detail") // Tên bảng trong DB
 public class ProductOrderDetailModel {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "product_order_detail_id") // mapping cột DB
+    private String productOrderDetailId;
 
+    // ManyToOne tới ProductOrderModel
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "product_order_id",
+            referencedColumnName = "productOrderId", // Tham chiếu đến Business ID (String) của ProductOrderModel
+            nullable = false
+    )
+    private ProductOrderModel productOrder;
 
-    @Column(unique = true)
-    private String productOrderDetailId; // business id (không phải PK)
+    // ManyToOne tới ProductCategoryModel
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "product_category_id",
+            referencedColumnName = "productCategoryId", // Tham chiếu đến Business ID (String) của ProductCategoryModel
+            nullable = false
+    )
+    private ProductCategoryModel productCategory;
 
-    private String productId;         // business key
-    private Long categoryId;        // business key
-    private Long productCategoryId; // business key
-    private String productOrderId;     // business key
+    @Column(name = "product_name")
     private String productName;
 
     private Integer quantity;
+
     private Double price;
+
     private Double subtotal;
+
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @ManyToOne
-    @JoinColumn(name = "productOrderId", nullable = false, insertable = false, updatable = false)
-    private ProductOrderModel productOrder;
-
-
-    @ManyToOne
-    @JoinColumn(name = "productCategoryId", nullable = false, insertable = false, updatable = false)
-    private ProductCategoryModel productCategory;
-
-    public String getProductName() {
+    public ProductCategoryModel getProductCategory() {
         return null;
     }
+
+    public String getProductId() {
+        return null;
+    }
+
+    public String getProductCategoryId() {
+        return null;
+    }
+
+    public Object getProductOrderId() {
+        return null;
+    }
+
+    public void setProductCategoryId(String productCategoryId) {
+        
+    }
+
+    public void setProductOrderId(Object productOrderId) {
+    }
 }
+
+
+
 
 
 

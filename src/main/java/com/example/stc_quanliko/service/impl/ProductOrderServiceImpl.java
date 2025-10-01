@@ -176,7 +176,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
 
         Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
         List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
-        if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getStatus().equalsIgnoreCase(TypeStatusOrder.toString())) {
+        if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getClass().equals(TypeStatusOrder.toString())) {
             Function<? super ProductOrderDetailModel, ? extends String> keyMapper = (Function<? super ProductOrderDetailModel, ? extends String>) productOrderDetailModel1 -> productOrderDetailModel1.getProductCategoryId().toString();
             Map<String, Integer> savedMap = new HashMap<>();
             for (ProductOrderDetailModel productOrderDetailModel : pods) {
@@ -351,38 +351,45 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(PRODUCT_ORDER_DETAIL_NOT_FOUND);
         }
 
-        List<String> productCategoryIds = (List<String>) orderDetailModels.stream().map(ProductOrderDetailModel::getProductCategoryId);
-        List<ProductCategoryModel> pods = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
-        Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
-        Function<? super ProductCategoryModel, ? extends String> valueMapper = (Function<? super ProductCategoryModel, ? extends String>) productCategoryModel -> productCategoryModel.getCategoryId().toString();
-        Map<String, String> categoryMap = new HashMap<>();
-        for (ProductCategoryModel pod : pods) {
-            if (categoryMap.put(pod.getProductCategoryId(), valueMapper.apply(pod)) != null) {
-                throw new IllegalStateException("Duplicate key");
-            }
-        }
-        List<Object> categoryIds = Collections.singletonList(pods.stream().map(ProductCategoryModel::getCategoryId));
-        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(categoryIds);
-        Map<String, String> categoryNameMap = categories.stream().collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
+        List<String> productCategoryIds = orderDetailModels.stream()
+                .map(pod -> String.valueOf(pod.getProductCategoryId()))
+                .toList();
+
+        List<ProductCategoryModel> pcs = IProductCategoryRepository.findAllByProductCategoryIdIn(productCategoryIds);
+        Map<String, Integer> stockMap = pcs.stream()
+                .collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
+
+        Map<String, String> categoryMap = pcs.stream()
+                .collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId,
+                        pc -> pc.getCategory().toString()));
+
+        List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(
+                Collections.singletonList(pcs.stream().map(ProductCategoryModel::getCategory).toList())
+        );
+        Map<String, String> categoryNameMap = categories.stream()
+                .collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));
 
         List<ProductOrderDetailListResponse> productOrderDetailListResponses = new ArrayList<>();
-        for(ProductOrderDetailModel productOrderDetail : orderDetailModels) {
+        for (ProductOrderDetailModel pod : orderDetailModels) {
             productOrderDetailListResponses.add(ProductOrderDetailListResponse.builder()
                     .productOrderId(productOrderId)
-                    .productCategoryId(String.valueOf(productOrderDetail.getProductCategoryId()))
-                    .productName(productOrderDetail.getProductName())
-                    .quantity(productOrderDetail.getQuantity())
-                    .price(productOrderDetail.getPrice())
-                    .subtotal(productOrderDetail.getSubtotal())
-                    .createDate(productOrderDetail.getCreateDate())
-                    .stock(stockMap.get(productOrderDetail.getProductCategoryId() == null ? "" : productOrderDetail.getProductCategoryId()))
-                    .categoryName(categoryNameMap.get(categoryMap.get(productOrderDetail.getProductCategoryId()) == null ? "" : categoryMap.get(productOrderDetail.getProductCategoryId())))
+                    .productCategoryId(String.valueOf(pod.getProductCategoryId()))
+                    .productName(pod.getProductName())
+                    .quantity(pod.getQuantity())
+                    .price(pod.getPrice())
+                    .subtotal(pod.getSubtotal())
+                    .createDate(pod.getCreateDate())
+                    .stock(stockMap.getOrDefault(String.valueOf(pod.getProductCategoryId()), 0))
+                    .categoryName(categoryNameMap.getOrDefault(categoryMap.getOrDefault(
+                            String.valueOf(pod.getProductCategoryId()), ""), ""))
                     .build());
         }
+
         productOrderDetailListResponses = productOrderDetailListResponses.stream()
                 .sorted(Comparator.comparing(ProductOrderDetailListResponse::getCategoryName)
                         .thenComparing(ProductOrderDetailListResponse::getProductName))
                 .collect(Collectors.toList());
+
         return ProductOrderResponse.builder()
                 .productOrderId(productOrderModel.getProductOrderId())
                 .userId(productOrderModel.getUserId())
@@ -398,6 +405,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
                 .productOrderDetailListResponses(productOrderDetailListResponses)
                 .build();
     }
+
 
     public static String generateTrackingNumber() {
         StringBuilder trackingNumber = new StringBuilder();
