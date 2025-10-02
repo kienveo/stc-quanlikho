@@ -69,8 +69,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public ApiResponse<Object> createProductCategory(ProductCategoryRequest request) {
-        var productCategory = IProductCategoryRepository.existsByProductIdAndCategoryId(request.getProductId(), request.getCategoryId());
-        if (productCategory) {
+        var productCategory = IProductCategoryRepository.existsByProduct_ProductIdAndCategory_CategoryId(request.getProductId(), request.getCategoryId());
+        if ((boolean) productCategory) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();
@@ -99,7 +99,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public ApiResponse<Object> updateProductCategory(ProductCategoryRequest request) {
-        var pcModel = IProductCategoryRepository.findById(request.getProductCategoryId()).orElseThrow(() -> {
+        var pcModel = IProductCategoryRepository.findById(Long.valueOf(String.valueOf(Long.valueOf(request.getProductCategoryId())))).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
@@ -121,7 +121,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public ApiResponse<Object> deleteProductCategoryById(String id) {
-        var pcModel = IProductCategoryRepository.findById(id).orElseThrow(() -> {
+        var pcModel = IProductCategoryRepository.findById(Long.valueOf(String.valueOf(Long.valueOf(id)))).orElseThrow(() -> {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                     .build();
@@ -144,8 +144,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                     .build();
             return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
-        List<ProductCategoryResponse> responses = IProductCategoryRepository.findAllIncludeProductNameByCategoryId(categoryId);
-        List<String> productIds = responses.stream().map(ProductCategoryResponse::getProductId).toList();
+        List<ProductCategoryModel> responses = IProductCategoryRepository.findAllIncludeProductNameByCategoryId(categoryId);
+        List<String> productIds = responses.stream()
+                .map(ProductCategoryModel::getProductId) // lấy productId từ ProductCategoryModel
+                .toList();
         List<ProductModel> products = IProductRepository.findByProductIdIn(productIds);
         Map<String, List<String>> keywordMap = new HashMap<>();
         Map<String, List<String>> genericNameMap = new HashMap<>();
@@ -172,8 +174,16 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             response.setGenericName(genericNameMap.get(response.getProductId()) == null ? new ArrayList<>() : genericNameMap.get(response.getProductId()));
         });
         responses = responses.stream()
-                .sorted(Comparator.comparing(ProductCategoryResponse::getProductName))
+                .sorted(Comparator.comparing(pc -> {
+                    ProductModel product = products.stream()
+                            .filter(p -> p.getProductId().equals(pc.getProductId()))
+                            .findFirst()
+                            .orElse(null);
+                    return product != null ? product.getProductName() : "";
+                }))
                 .collect(Collectors.toList());
+
+
         if (!type.equalsIgnoreCase("admin")) {
             responses = responses.stream().filter(product -> product.getQuantity() > product.getMinLimit())
                     .collect(Collectors.toList());
@@ -201,7 +211,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         List<String> existProductIds = existProducts.stream().map(ProductModel::getProductId).toList();
         List<ProductCategoryModel> productCategories = IProductCategoryRepository.findByProductIdIn(existProductIds, categoryId);
-        Map<String, ProductCategoryModel> productCategoryMap = productCategories.stream()
+        Map<ProductModel, ProductCategoryModel> productCategoryMap = productCategories.stream()
                 .collect(Collectors.toMap(ProductCategoryModel::getProduct, e -> e));
 
         List<ProductCategoryModel> productCategoryList = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.example.stc_quanliko.repository;
 
 import com.example.stc_quanliko.entity.CategoryModel;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,7 @@ public interface ICategoryRepository extends JpaRepository<CategoryModel, String
     String TABLE = "category";
 
     boolean existsByCategoryName(String categoryName);
+
     CategoryModel findByCategoryName(String categoryName);
 
     @Query(value = "SELECT * FROM " + TABLE +
@@ -20,5 +22,5 @@ public interface ICategoryRepository extends JpaRepository<CategoryModel, String
     List<CategoryModel> findAllByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("SELECT c FROM category c WHERE c.categoryId IN :ids")
-    List<CategoryModel> findAllByCategoryIdIn(List<Object> ids);
+    List<CategoryModel> findAllByCategoryIdIn(List<String> ids);
 }

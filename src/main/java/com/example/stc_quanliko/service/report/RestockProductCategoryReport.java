@@ -49,9 +49,9 @@ public class RestockProductCategoryReport {
         List<String> productOrderIds = productOrders.stream().map(ProductOrderModel::getProductOrderId).toList();
         List<ProductOrderDetailModel> productOrderDetails = new ArrayList<>();
         if(categoryId.equals("all")) {
-            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdIn(productOrderIds);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrder_ProductOrderIdIn(productOrderIds);
         } else {
-            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrderIdInAndCategoryId(productOrderIds, categoryId);
+            productOrderDetails = IProductOrderDetailRepository.findAllByProductOrder_ProductOrderIdInAndCategory_CategoryId(productOrderIds, categoryId);
         }
         List<ProductCategoryModel> poList = IProductCategoryRepository.findAll();
         return createContent(categories, poList, productOrderDetails);

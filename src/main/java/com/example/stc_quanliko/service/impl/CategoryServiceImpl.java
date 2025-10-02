@@ -61,8 +61,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ApiResponse<Object> createCategories(CategoryCreateRequest request) {
-        var categoriesModel = ICategoryRepository.existsByCategoryName(request.getCategoryName());
-        if (categoriesModel) {
+        var categoryModel = ICategoryRepository.existsByCategoryName(request.getCategoryName());
+        if ((boolean) categoryModel) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();
@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         String categoryId = UUID.randomUUID().toString().replaceAll("-", "");
         var category = CategoryModel.builder()
-                .categoryCode(categoryId)
+                .categoryId(categoryId)
                 .categoryName(request.getCategoryName())
                 .minQuantity(request.getMinQuantity())
                 .createDate(LocalDateTime.now())
@@ -117,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .build();
             return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
-        IProductCategoryRepository.deleteAllByCategoryId(categoryId);
+        IProductCategoryRepository.deleteAllByCategory_CategoryId((categoryId));
         ICategoryRepository.deleteById(categoriesModel.getCategoryId());
 
         var json = new ObjectMapper().createObjectNode();
@@ -136,7 +136,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .build();
             return new ServiceSecurityException(CATEGORY_NOT_FOUND);
         });
-        IProductCategoryRepository.deleteAllByCategoryId(categoryId);
+        IProductCategoryRepository.deleteAllByCategory_CategoryId(categoryId);
 
         var json = new ObjectMapper().createObjectNode();
         json.putPOJO("categoryId", categoryId);
@@ -157,7 +157,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void validateCategoryName(String categoryName, String categoryNamePresent, String categoryId) {
         var categoryModel = ICategoryRepository.findByCategoryName(categoryName);
-        if (!categoryModel.getCategoryId().equalsIgnoreCase(categoryId) && !Objects.equals(categoryName, categoryNamePresent) && !Objects.equals(categoryModel.getCategoryName(), categoryNamePresent)) {
+        if (!categoryModel.getClass().equals(categoryId) && !Objects.equals(categoryName, categoryNamePresent) && !Objects.equals(categoryModel.getClass(), categoryNamePresent)) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(CATEGORY_NAME_EXIST.getCode())
                     .build();

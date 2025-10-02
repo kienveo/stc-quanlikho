@@ -175,7 +175,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         }
 
         Map<String, Integer> requestChangeMap = request.getProductOrderDetails().stream().collect(Collectors.toMap(ProductOrderDetailRequest::getProductCategoryId, ProductOrderDetailRequest::getQuantity));
-        List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrderId(request.getProductOrderId());
+        List<ProductOrderDetailModel> pods = IProductOrderDetailRepository.findAllByProductOrder_ProductOrderId(request.getProductOrderId());
         if (!CollectionUtils.isEmpty(request.getProductOrderDetails()) && productsOrderModel.getClass().equals(TypeStatusOrder.toString())) {
             Function<? super ProductOrderDetailModel, ? extends String> keyMapper = (Function<? super ProductOrderDetailModel, ? extends String>) productOrderDetailModel1 -> productOrderDetailModel1.getProductCategoryId().toString();
             Map<String, Integer> savedMap = new HashMap<>();
@@ -324,7 +324,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
             throw new ServiceSecurityException(PRODUCT_ORDER_NOT_FOUND);
         }
         for (ProductOrderDetailRequest data : request.getDetailRequests()) {
-            var pc = IProductCategoryRepository.findById(data.getProductCategoryId()).orElseThrow(() -> {
+            var pc = IProductCategoryRepository.findById(Long.valueOf(String.valueOf(Long.valueOf(data.getProductCategoryId())))).orElseThrow(() -> {
                 var errorMapping = ErrorData.builder()
                         .errorKey1(PRODUCT_CATEGORY_NOT_FOUND.getCode())
                         .build();
@@ -343,7 +343,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
     }
 
     private ProductOrderResponse getProductOrderResponse(String productOrderId, ProductOrderModel productOrderModel) {
-        var orderDetailModels = IProductOrderDetailRepository.findAllByProductOrderId(productOrderId);
+        var orderDetailModels = IProductOrderDetailRepository.findAllByProductOrder_ProductOrderId(productOrderId);
         if (orderDetailModels.isEmpty()) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
@@ -364,7 +364,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
                         pc -> pc.getCategory().toString()));
 
         List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(
-                Collections.singletonList(pcs.stream().map(ProductCategoryModel::getCategory).toList())
+                Collections.singletonList(String.valueOf(pcs.stream().map(ProductCategoryModel::getCategory).toList()))
         );
         Map<String, String> categoryNameMap = categories.stream()
                 .collect(Collectors.toMap(CategoryModel::getCategoryId, CategoryModel::getCategoryName));

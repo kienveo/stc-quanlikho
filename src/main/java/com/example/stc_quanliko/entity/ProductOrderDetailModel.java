@@ -9,43 +9,35 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "products_order_detail") // Tên bảng trong DB
+// Corrected ProductOrderDetailModel.java (Remove redundant ID fields)
+@Entity(name = "ProductOrderDetailModel")
+@Table(name = "products_order_detail")
 public class ProductOrderDetailModel {
 
     @Id
-    @Column(name = "product_order_detail_id") // mapping cột DB
+    @Column(nullable = false)
     private String productOrderDetailId;
 
-    // ManyToOne tới ProductOrderModel
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "product_order_id",
-            referencedColumnName = "productOrderId", // Tham chiếu đến Business ID (String) của ProductOrderModel
-            nullable = false
-    )
-    private ProductOrderModel productOrder;
-
-    // ManyToOne tới ProductCategoryModel
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "product_category_id",
-            referencedColumnName = "productCategoryId", // Tham chiếu đến Business ID (String) của ProductCategoryModel
-            nullable = false
-    )
-    private ProductCategoryModel productCategory;
-
-    @Column(name = "product_name")
-    private String productName;
+    // REMOVE: private String productOrderId;
+    // REMOVE: private String productCategoryId;
+    // REMOVE: private String productId;
+    // REMOVE: private String categoryId;
+    // REMOVE: private String productName;
 
     private Integer quantity;
-
     private Double price;
-
     private Double subtotal;
-
-    @Column(name = "create_date")
     private LocalDateTime createDate;
+
+    @ManyToOne
+    @JoinColumn(name = "product_order_id", nullable = false) // Use snake_case for consistency
+    private ProductOrderModel productOrder;
+
+    @ManyToOne
+    @JoinColumn(name = "product_category_id", nullable = false) // Use snake_case for consistency
+    private ProductCategoryModel productCategory;
+
+    // REMOVE all dummy getters/setters for IDs, e.g., getProductCategory(), getProductId(), etc.
 
     public ProductCategoryModel getProductCategory() {
         return null;
@@ -68,6 +60,13 @@ public class ProductOrderDetailModel {
     }
 
     public void setProductOrderId(Object productOrderId) {
+    }
+
+    public String getProductName() {
+        return null;
+    }
+
+    public void setProductName(String productName) {
     }
 }
 

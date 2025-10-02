@@ -1,5 +1,6 @@
 package com.example.stc_quanliko.dto.request.orderdetail;
 
+import com.example.stc_quanliko.entity.ProductCategoryModel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
@@ -38,4 +39,8 @@ public class ProductOrderDetailRequest {
     @Min(value = 0, message = "Subtotal must be >= 0")
     @JsonProperty("subtotal")
     private Double subtotal;
+
+    public ProductCategoryModel setProductName() {
+        return null;
+    }
 }

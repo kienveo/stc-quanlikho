@@ -38,7 +38,7 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
 
     @Override
     public ResponseEntity<Object> getProductOrderDetail(String productOrderId) {
-        List<ProductOrderDetailModel> orderDetailModels = IProductOrderDetailRepository.findAllByProductOrderId(productOrderId);
+        List<ProductOrderDetailModel> orderDetailModels = IProductOrderDetailRepository.findAllByProductOrder_ProductOrderId(productOrderId);
         if (orderDetailModels.isEmpty()) {
             var errorMapping = ErrorData.builder()
                     .errorKey1(PRODUCT_ORDER_DETAIL_NOT_FOUND.getCode())
@@ -56,10 +56,10 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
         Map<String, Integer> stockMap = pods.stream().collect(Collectors.toMap(ProductCategoryModel::getProductCategoryId, ProductCategoryModel::getQuantity));
 
         // 🛠️ Sửa lỗi: Lấy danh sách categoryIds từ đối tượng ProductCategoryModel
-        List<String> categoryIds = pods.stream()
+        String categoryIds = String.valueOf(pods.stream()
                 // Truy cập CategoryId trong ProductCategoryModel
                 .map(productCategoryModel -> productCategoryModel.getCategory().toString())
-                .toList();
+                .toList());
 
         // 🛠️ Sửa lỗi: Thay thế Collections.singletonList()
         List<CategoryModel> categories = ICategoryRepository.findAllByCategoryIdIn(Collections.singletonList(categoryIds));
@@ -118,8 +118,8 @@ public class ProductOrderDetailServiceImpl implements ProductOrderDetailService 
             ProductOrderDetailModel productOrderDetailModel = ProductOrderDetailModel.builder()
                     .productOrderDetailId(productOrderDetailId)
                     .productOrder(productsOrderModel)        // ✅ truyền object
-                    .productCategory((ProductCategoryModel) pc)                     // ✅ truyền object
-                    .productName(data.getProductName())
+                    .productCategory( pc)                     // ✅ truyền object
+                    .productCategory(data.setProductName()) // Giữ nguyên tên sản phẩm
                     .quantity(data.getQuantity())
                     .price(data.getPrice())
                     .subtotal(data.getSubtotal())

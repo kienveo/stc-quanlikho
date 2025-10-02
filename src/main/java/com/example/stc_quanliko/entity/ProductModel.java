@@ -12,7 +12,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Getter
 @Setter
 @Builder
@@ -32,5 +31,4 @@ public class ProductModel {
     @Column(columnDefinition = "TEXT")
     private String keyword;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductCategoryModel> productCategories;
-}
+    private List<ProductCategoryModel> productCategories;}

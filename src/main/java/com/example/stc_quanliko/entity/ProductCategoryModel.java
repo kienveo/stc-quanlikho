@@ -1,43 +1,25 @@
 package com.example.stc_quanliko.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Entity(name = "product_category") // You can use @Table(name = "product_category") instead
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "product_category")
-@Table(name = "product_category")
+@Builder
+@Table(name = "product_category") // specify the table name in the database
 public class ProductCategoryModel {
 
-    // Khóa chính kỹ thuật (Technical Primary Key)
-    @jakarta.persistence.Id
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    // Khóa Business ID (đảm bảo unique)
-    @Column(unique = true, nullable = false)
-    private String productCategoryId;
-
-    // XÓA: private String productId;
-    // XÓA: private String categoryId;
-
-    // Ánh xạ mối quan hệ ManyToOne tới ProductModel
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false) // Tên cột FK
-    private ProductModel product;
-
-    // Ánh xạ mối quan hệ ManyToOne tới CategoryModel (Thiếu trong code cũ)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false) // Tên cột FK
-    private CategoryModel category;
+    @Column(nullable = false)
+    private String productCategoryId;// The ONLY Primary Key
+    private String id ;// Not a Primary Key
 
     private Integer quantity;
     private Integer minLimit;
@@ -46,24 +28,33 @@ public class ProductCategoryModel {
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
 
+    // Use productId for the column name in the database
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false) // use snake_case for column names
+    private ProductModel product;
+
+    // Use categoryId for the column name in the database
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false) // use snake_case for column names
+    private CategoryModel category;
+
     @OneToMany(mappedBy = "productCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOrderDetailModel> orderDetails;
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getProduct() {
-        return null;
+    public String getProductId() {
+     return product != null ? product.getProductId() : null;
     }
 
     public void setCategoryId(String categoryId) {
     }
 
     public void setProductId(String productId) {
+     }
+
+    public void setKeywords(List<?> objects) {
+    }
+
+    public void setGenericName(List<?> objects) {
+
     }
 }
 

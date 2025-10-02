@@ -21,6 +21,7 @@ import java.util.List;
 @Entity(name = IUsersRepository.TABLE)
 public class UsersModel implements UserDetails {
 
+
     @Id
     @Column(nullable = false)
     private String userId;
@@ -33,24 +34,14 @@ public class UsersModel implements UserDetails {
     private String city;
     private String state;
     private String zipCode;
-
-    // THAY THẾ: private String roleId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id") // Tên cột Khóa ngoại trong DB
-    private RoleModel role; // Mối quan hệ tới RoleModel
-
+    private String roleId;
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role != null && role.getRoles() != null) {
-            return List.of(new SimpleGrantedAuthority(role.getRoles()));
-        }
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(roleId));
     }
-    // ... các phương thức UserDetails khác
-
 
     @Override
     public String getUsername() {
@@ -76,11 +67,5 @@ public class UsersModel implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    public void setRoleId(@NotBlank(message = "Role is not blank") String roleId) {
-    }
-
-    public String getRoleId() {
-        return null;
-    }
 }
+

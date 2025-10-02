@@ -134,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
                     .build();
             return new ServiceSecurityException(PRODUCT_NOT_FOUND);
         });
-        IProductCategoryRepository.deleteAllByProductId(productId);
+        IProductCategoryRepository.deleteAllByProduct_ProductId((productId));
         IProductRepository.deleteById(productId);
 
         var json = new ObjectMapper().createObjectNode();

@@ -11,21 +11,15 @@ import java.util.List;
 
 @Repository
 public interface IProductOrderDetailRepository extends JpaRepository<ProductOrderDetailModel, String> {
+    @Query("SELECT pod FROM ProductOrderDetailModel pod WHERE pod.productOrder.productOrderId in :productOrderIds")
+    List<ProductOrderDetailModel> findAllByProductOrder_ProductOrderIdIn(@Param("productOrderIds") List<String> productOrderIds);
 
-    // Truy vấn tất cả detail theo id của productOrder
-    List<ProductOrderDetailModel> findAllByProductOrderId(String productOrderId);
-
-    // Truy vấn nhiều productOrderIds
-    @Query("SELECT pod FROM ProductOrderDetailModel pod WHERE pod.productOrder.id IN :productOrderIds")
-    List<ProductOrderDetailModel> findAllByProductOrderIdIn(@Param("productOrderIds") List<String> productOrderIds);
-
-    // Truy vấn nhiều productOrderIds và filter theo category
-    @Query("SELECT pod FROM ProductOrderDetailModel pod " +
-            "WHERE pod.productOrder.id IN :productOrderIds " +
-            "AND pod.productCategory.id = :categoryId")
-    List<ProductOrderDetailModel> findAllByProductOrderIdInAndCategoryId(
+    @Query("SELECT pod FROM ProductOrderDetailModel pod WHERE pod.productOrder.productOrderId in :productOrderIds AND pod.productCategory.category.categoryId = :categoryId")
+    List<ProductOrderDetailModel> findAllByProductOrder_ProductOrderIdInAndCategory_CategoryId(
             @Param("productOrderIds") List<String> productOrderIds,
             @Param("categoryId") String categoryId
     );
-}
 
+    List<ProductOrderDetailModel> findAllByProductOrder_ProductOrderId(String productOrderId);
+
+}

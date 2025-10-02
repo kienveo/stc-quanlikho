@@ -5,6 +5,7 @@ import com.example.stc_quanliko.repository.ICategoryRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,25 +13,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = ICategoryRepository.TABLE)
-@Table(name = "category") // đặt tên bảng rõ ràng
 public class CategoryModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "category_id", updatable = false, nullable = false)
+    @Column(nullable = false)
     private String categoryId;
-
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String categoryName;
-
-    @Column(name = "category_code", unique = true, nullable = false)
-    private String categoryCode;
-
     private String minQuantity;
-
     private LocalDateTime createDate;
-
     private LocalDateTime modifyDate;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductCategoryModel> productCategories;
 }
 
 

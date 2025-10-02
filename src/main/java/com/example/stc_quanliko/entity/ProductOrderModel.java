@@ -20,6 +20,7 @@ import java.util.List;
 @Entity(name = IProductOrderRepository.TABLE)
 public class ProductOrderModel {
 
+
     @Id
     @Column(nullable = false)
     private String productOrderId;
